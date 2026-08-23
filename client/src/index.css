@@ -33,18 +33,18 @@
 }
 
 :root {
-  --ink: #26342e;
-  --sage: #4e6a5a;
-  --sage-deep: #344d3f;
-  --sage-soft: #dbe5dc;
-  --clay: #c8826c;
-  --clay-soft: #f2ded4;
-  --ivory: #f7f4ed;
-  --paper: #fffdf9;
-  --sand: #e9dfcf;
-  --mist: #edf2eb;
-  --line: rgba(51, 72, 60, 0.15);
-  --footer: #263a30;
+  --ink: #182c3a;
+  --sage: #183b5b;
+  --sage-deep: #0e2a43;
+  --sage-soft: #d8e7f1;
+  --clay: #f18478;
+  --clay-soft: #fce0dc;
+  --ivory: #f4f7fa;
+  --paper: #ffffff;
+  --sand: #e6edf2;
+  --mist: #edf4f8;
+  --line: rgba(14, 42, 67, 0.15);
+  --footer: #112c45;
   --font-display: "Noto Naskh Arabic";
   --background: var(--ivory);
   --foreground: var(--ink);
@@ -53,13 +53,13 @@
   --popover: var(--paper);
   --popover-foreground: var(--ink);
   --primary: var(--sage);
-  --primary-foreground: #fffdf9;
+  --primary-foreground: #ffffff;
   --secondary: var(--sage-soft);
   --secondary-foreground: var(--sage-deep);
-  --muted: #eee9dd;
-  --muted-foreground: #69746c;
+  --muted: #eaf0f4;
+  --muted-foreground: #5f707d;
   --accent: var(--clay-soft);
-  --accent-foreground: #7e4637;
+  --accent-foreground: #8c4039;
   --destructive: #a84137;
   --destructive-foreground: #fff;
   --border: var(--line);

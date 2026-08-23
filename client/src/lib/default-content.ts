@@ -13,14 +13,14 @@ export const ASSETS = {
 };
 
 export const defaultSiteTheme: SiteTheme = {
-  primary: "#4e6a5a",
-  primaryDeep: "#344d3f",
-  accent: "#c8826c",
-  background: "#f7f4ed",
-  surface: "#fffdf9",
-  soft: "#dbe5dc",
-  ink: "#26342e",
-  footer: "#263a30",
+  primary: "#183b5b",
+  primaryDeep: "#0e2a43",
+  accent: "#f18478",
+  background: "#f4f7fa",
+  surface: "#ffffff",
+  soft: "#d8e7f1",
+  ink: "#182c3a",
+  footer: "#112c45",
 };
 
 export const defaultSiteInfo: SiteInfo = {
