@@ -1,6 +1,17 @@
 /**
  * Design system: «ملاذ هادئ» — بيانات واضحة تحافظ على المحتوى إنسانياً وهادئاً.
  */
+export type SiteTheme = {
+  primary: string;
+  primaryDeep: string;
+  accent: string;
+  background: string;
+  surface: string;
+  soft: string;
+  ink: string;
+  footer: string;
+};
+
 export type SiteInfo = {
   name: string;
   role: string;
@@ -22,6 +33,7 @@ export type SiteInfo = {
   heroImage: string;
   aboutImage: string;
   articleImage: string;
+  theme: SiteTheme;
 };
 
 export type Service = {

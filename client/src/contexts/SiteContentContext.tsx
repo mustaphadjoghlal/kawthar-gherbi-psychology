@@ -31,6 +31,13 @@ type SiteContentContextValue = {
 const SiteContentContext = createContext<SiteContentContextValue | null>(null);
 
 const sortByPosition = <T extends { position: number }>(items: T[]) => [...items].sort((a, b) => a.position - b.position);
+const resolveSiteInfo = (data: Partial<SiteInfo>): SiteInfo => ({ ...defaultSiteInfo, ...data, theme: { ...defaultSiteInfo.theme, ...data.theme } });
+const toRgba = (hex: string, alpha: number) => {
+  const value = hex.replace("#", "");
+  const normalized = value.length === 3 ? value.split("").map((item) => item + item).join("") : value;
+  const numeric = Number.parseInt(normalized, 16);
+  return `rgba(${(numeric >> 16) & 255}, ${(numeric >> 8) & 255}, ${numeric & 255}, ${alpha})`;
+};
 
 export function SiteContentProvider({ children }: { children: React.ReactNode }) {
   const [siteInfo, setSiteInfo] = useState<SiteInfo>(defaultSiteInfo);
@@ -44,7 +51,7 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
     if (!firestoreDb) return;
     const unsubscribers = [
       onSnapshot(doc(firestoreDb, "siteInfo", "profile"), (snapshot) => {
-        if (snapshot.exists()) setSiteInfo(snapshot.data() as SiteInfo);
+        if (snapshot.exists()) setSiteInfo(resolveSiteInfo(snapshot.data() as Partial<SiteInfo>));
         setIsLoading(false);
       }),
       onSnapshot(query(collection(firestoreDb, "services"), orderBy("position")), (snapshot) => {
@@ -62,6 +69,40 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
     ];
     return () => unsubscribers.forEach((unsubscribe) => unsubscribe());
   }, []);
+
+  useEffect(() => {
+    const theme = { ...defaultSiteInfo.theme, ...siteInfo.theme };
+    const root = document.documentElement;
+    const values: Record<string, string> = {
+      "--ink": theme.ink,
+      "--sage": theme.primary,
+      "--sage-deep": theme.primaryDeep,
+      "--sage-soft": theme.soft,
+      "--clay": theme.accent,
+      "--clay-soft": `color-mix(in srgb, ${theme.accent} 28%, ${theme.surface})`,
+      "--ivory": theme.background,
+      "--paper": theme.surface,
+      "--sand": `color-mix(in srgb, ${theme.accent} 20%, ${theme.background})`,
+      "--mist": `color-mix(in srgb, ${theme.soft} 58%, ${theme.surface})`,
+      "--line": toRgba(theme.primaryDeep, 0.15),
+      "--footer": theme.footer,
+      "--background": theme.background,
+      "--foreground": theme.ink,
+      "--card": theme.surface,
+      "--card-foreground": theme.ink,
+      "--popover": theme.surface,
+      "--popover-foreground": theme.ink,
+      "--primary": theme.primary,
+      "--secondary": theme.soft,
+      "--secondary-foreground": theme.primaryDeep,
+      "--accent": `color-mix(in srgb, ${theme.accent} 28%, ${theme.surface})`,
+      "--accent-foreground": theme.primaryDeep,
+      "--border": toRgba(theme.primaryDeep, 0.15),
+      "--input": toRgba(theme.primaryDeep, 0.2),
+      "--ring": theme.primary,
+    };
+    Object.entries(values).forEach(([property, value]) => root.style.setProperty(property, value));
+  }, [siteInfo.theme]);
 
   const ensureDb = () => {
     if (!firestoreDb) throw new Error("لم تُضف إعدادات Firebase بعد.");

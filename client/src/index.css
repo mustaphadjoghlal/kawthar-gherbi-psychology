@@ -44,6 +44,7 @@
   --sand: #e9dfcf;
   --mist: #edf2eb;
   --line: rgba(51, 72, 60, 0.15);
+  --footer: #263a30;
   --font-display: "Noto Naskh Arabic";
   --background: var(--ivory);
   --foreground: var(--ink);
@@ -300,7 +301,7 @@ h1, h2, h3 { text-wrap: balance; }
 .success-state .button-quiet { margin-top: 1.35rem; border-color: var(--sage); color: var(--sage-deep); }
 .success-state .button-quiet:hover { background: var(--sage); color: white; }
 
-.site-footer { padding-top: 4.5rem; background: #263a30; color: #e5eee4; }
+.site-footer { padding-top: 4.5rem; background: var(--footer); color: #e5eee4; }
 .footer-grid { display: grid; grid-template-columns: 1.45fr .7fr 1fr; gap: 3rem; padding-bottom: 3.5rem; }
 .footer-brand > p { max-width: 42ch; margin-top: 1rem; color: #b5c4b8; font-size: .86rem; line-height: 2; }
 .footer-brand .brand-lockup strong { color: #fffdf9; }
@@ -320,9 +321,9 @@ h1, h2, h3 { text-wrap: balance; }
 
 /* Admin — «ملاذ هادئ»: أداة عملية هادئة، مع سلاسة بصرية مستقلة عن الواجهة العامة. */
 .admin-page { display: grid; grid-template-columns: 255px minmax(0,1fr); min-height: 100vh; background: #f4f1e9; direction: rtl; }
-.admin-sidebar { position: sticky; top: 0; display: flex; flex-direction: column; min-height: 100vh; padding: 1.5rem 1rem; background: #263a30; color: white; }
+.admin-sidebar { position: sticky; top: 0; display: flex; flex-direction: column; min-height: 100vh; padding: 1.5rem 1rem; background: var(--footer); color: white; }
 .admin-sidebar-brand { display: flex; align-items: center; gap: .7rem; padding: .4rem .55rem 1.8rem; border-bottom: 1px solid rgba(255,255,255,.12); }
-.admin-brand-symbol { display: grid; place-items: center; width: 37px; height: 37px; border-radius: 50% 50% 42% 42%; background: #d9a28e; color: #263a30; font-family: "Aref Ruqaa Ink", serif; font-size: 1.35rem; font-weight: 700; }
+.admin-brand-symbol { display: grid; place-items: center; width: 37px; height: 37px; border-radius: 50% 50% 42% 42%; background: #d9a28e; color: var(--footer); font-family: "Aref Ruqaa Ink", serif; font-size: 1.35rem; font-weight: 700; }
 .admin-sidebar-brand strong { display: block; font-family: "Aref Ruqaa Ink", serif; font-size: 1.14rem; }
 .admin-sidebar-brand small { display: block; color: #afc0b3; font-size: .65rem; }
 .admin-sidebar nav { display: grid; gap: .15rem; padding-top: 1.2rem; }
@@ -396,6 +397,26 @@ h1, h2, h3 { text-wrap: balance; }
 .admin-loading { color: var(--sage-deep); font-size: .9rem; }
 .loading-leaf { width: 36px; height: 54px; margin-bottom: .8rem; border: 2px solid var(--sage); border-radius: 100% 0 100% 0; transform: rotate(45deg); animation: breathe 1.5s ease-in-out infinite; }
 
+/* الهوية البصرية: لوحة واضحة تسمح بتعديل الرموز العامة مع معاينة حية دون كسر هدوء «ملاذ هادئ». */
+.theme-settings-grid { display: grid; grid-template-columns: minmax(0,1.15fr) minmax(280px,.85fr); gap: 1.4rem; margin-top: 1.6rem; align-items: start; }
+.theme-color-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .75rem; }
+.theme-color-field { display: flex; align-items: center; justify-content: space-between; gap: .75rem; min-height: 84px; padding: .8rem .9rem; border: 1px solid var(--line); background: color-mix(in srgb, var(--paper) 82%, var(--ivory)); }
+.theme-color-field > span:first-child { display: grid; gap: .12rem; }
+.theme-color-field strong { color: var(--sage-deep); font-size: .79rem; }
+.theme-color-field small { max-width: 19ch; color: #7a867c; font-size: .66rem; line-height: 1.55; }
+.theme-color-control { display: grid; justify-items: center; gap: .25rem; }
+.theme-color-control input { width: 35px; height: 35px; padding: 2px; border: 1px solid var(--line); background: var(--paper); cursor: pointer; }
+.theme-color-control code { color: #69766d; direction: ltr; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .61rem; }
+.theme-live-preview { overflow: hidden; min-height: 360px; border: 1px solid var(--line); box-shadow: 10px 12px 0 var(--sage-soft); }
+.theme-preview-bar { display: flex; align-items: center; justify-content: space-between; padding: .9rem 1rem; color: #fffdf9; font-family: var(--font-display), serif; }
+.theme-preview-bar i { width: 20px; height: 20px; border-radius: 50% 50% 45% 45%; }
+.theme-preview-body { display: grid; align-content: start; gap: .8rem; min-height: 300px; padding: 2rem 1.3rem; }
+.theme-preview-body small { font-size: .7rem; font-weight: 700; }
+.theme-preview-body h3 { max-width: 12ch; font-family: var(--font-display), serif; font-size: 2rem; line-height: 1.35; }
+.theme-preview-body p { max-width: 31ch; color: color-mix(in srgb, currentColor 68%, transparent); font-size: .78rem; line-height: 1.9; }
+.theme-preview-body button { width: max-content; min-height: 42px; margin-top: .2rem; padding: .55rem .9rem; border: 1px solid; font-size: .76rem; font-weight: 700; }
+.theme-preview-chip { width: max-content; margin-top: .55rem; padding: .45rem .65rem; font-size: .68rem; font-weight: 700; }
+
 /* تحييد العناوين إلى حبر ميرمي دافئ؛ الطين يبرز التفاصيل فقط ولا يقود الواجهة. */
 .brand-lockup strong, .hero-copy h1, .hero-card, .welcome-grid h2, .section-heading h2, .about-band h2, .contact-cta-section h2, .page-lead h1, .about-story-copy h2, .guidance-grid h2, .contact-details h2, .service-preview h3, .article-card h3, .testimonial-grid blockquote, .row-title h2, .article-list-body h2, .article-detail h1, .article-prose h2, .admin-brand-symbol, .admin-sidebar-brand strong, .admin-topbar h1, .admin-panel-heading h2, .inline-editor-heading h3, .admin-stat strong, .booking-row h3, .admin-login-card h1, .admin-setup-card h1, .success-state h2, .form-heading span, .not-found-inline h1 { font-family: var(--font-display), serif; }
 @keyframes breathe { 50% { transform: rotate(45deg) scale(.86); opacity: .55; } }
@@ -415,6 +436,7 @@ h1, h2, h3 { text-wrap: balance; }
   .footer-grid { grid-template-columns: 1.2fr .75fr 1fr; }
   .admin-page { grid-template-columns: 210px minmax(0,1fr); }
   .admin-stat-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .theme-settings-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 720px) {
   .container { padding-inline: 1.1rem; }

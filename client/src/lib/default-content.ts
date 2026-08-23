@@ -1,7 +1,7 @@
 /**
  * Design system: «ملاذ هادئ» — محتوى بدء إنساني قابل للتبديل من لوحة التحكم فقط بعد التهيئة.
  */
-import type { Article, Service, SiteInfo } from "@/types/site";
+import type { Article, Service, SiteInfo, SiteTheme } from "@/types/site";
 
 export const ASSETS = {
   hero: "/manus-storage/kawthar-hero-therapy-sanctuary_d99d4ac4.jpg",
@@ -10,6 +10,17 @@ export const ASSETS = {
   shadowWalk: "/manus-storage/kawthar-shadow-walk_2504109e.jpg",
   paperBreath: "/manus-storage/kawthar-paper-breath_28d97e66.jpg",
   mark: "/manus-storage/kawthar-brand-mark_cd0a65a8.png",
+};
+
+export const defaultSiteTheme: SiteTheme = {
+  primary: "#4e6a5a",
+  primaryDeep: "#344d3f",
+  accent: "#c8826c",
+  background: "#f7f4ed",
+  surface: "#fffdf9",
+  soft: "#dbe5dc",
+  ink: "#26342e",
+  footer: "#263a30",
 };
 
 export const defaultSiteInfo: SiteInfo = {
@@ -37,6 +48,7 @@ export const defaultSiteInfo: SiteInfo = {
   heroImage: ASSETS.hero,
   aboutImage: ASSETS.dialogue,
   articleImage: ASSETS.journal,
+  theme: defaultSiteTheme,
 };
 
 export const defaultServices: Service[] = [
