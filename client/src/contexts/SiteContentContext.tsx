@@ -70,9 +70,18 @@ type CachedShape = {
 };
 
 /**
- * اسم المجموعة داخل المشروع المشترك. السابقة تفصل بيانات هذا الموقع عن
- * بيانات موقع مصطفى، إذ يتشارك الموقعان اسمَي articles وsiteInfo.
+ * أي اشتراك يفشل (قواعد رافضة، انقطاع شبكة) يُسجَّل ولا يُترك صامتاً،
+ * فيبقى الموقع على المحتوى الافتراضي بدل أن ينهار.
  */
+const onSnapshotError = (label: string) => (error: unknown) => {
+  const code = String((error as { code?: string })?.code ?? "");
+  const hint = code.includes("permission-denied")
+    ? "تحققي من نشر قواعد Firestore المرفقة في المستودع."
+    : "تعذر الوصول إلى Firestore حالياً.";
+  console.error(`[محتوى الموقع] فشل الاشتراك بـ «${label}»: ${code || "خطأ غير معروف"}. ${hint}`);
+};
+
+/** اسم المجموعة بعد إضافة السابقة، وهي فارغة ما دام الموقع يملك مشروعه الخاص. */
 const col = (name: string) => `${COLLECTION_PREFIX}${name}`;
 
 const sortByPosition = <T extends { position: number }>(items: T[]) =>
@@ -188,45 +197,45 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
           writeCache({ siteInfo: next });
         }
         setIsLoading(false);
-      }),
+      }, onSnapshotError("siteInfo")),
       onSnapshot(doc(db, col("siteContent"), "copy"), (snapshot) => {
         if (!snapshot.exists()) return;
         const next = resolveCopy(snapshot.data() as Partial<SiteCopy>);
         setCopy(next);
         writeCache({ copy: next });
-      }),
+      }, onSnapshotError("siteContent")),
       onSnapshot(query(collection(db, col("navLinks")), orderBy("position")), (snapshot) => {
         if (snapshot.empty) return;
         const next = sortByPosition(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as NavLink));
         setNavLinks(next);
         writeCache({ navLinks: next });
-      }),
+      }, onSnapshotError("navLinks")),
       onSnapshot(query(collection(db, col("principles")), orderBy("position")), (snapshot) => {
         if (snapshot.empty) return;
         const next = sortByPosition(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as Principle));
         setPrinciples(next);
         writeCache({ principles: next });
-      }),
+      }, onSnapshotError("principles")),
       onSnapshot(query(collection(db, col("services")), orderBy("position")), (snapshot) => {
         if (snapshot.empty) return;
         const next = sortByPosition(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as Service));
         setServices(next);
         writeCache({ services: next });
-      }),
+      }, onSnapshotError("services")),
       onSnapshot(query(collection(db, col("articles")), orderBy("position")), (snapshot) => {
         if (snapshot.empty) return;
         const next = sortByPosition(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as Article));
         setArticles(next);
         writeCache({ articles: next });
-      }),
+      }, onSnapshotError("articles")),
       onSnapshot(query(collection(db, col("testimonials")), orderBy("position")), (snapshot) => {
         const next = sortByPosition(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as Testimonial));
         setTestimonials(next);
         writeCache({ testimonials: next });
-      }),
+      }, onSnapshotError("testimonials")),
       onSnapshot(query(collection(db, col("bookingRequests")), orderBy("createdAt", "desc")), (snapshot) => {
         setBookings(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as BookingRequest));
-      }),
+      }, onSnapshotError("bookingRequests")),
     ];
     return () => unsubscribers.forEach((unsubscribe) => unsubscribe());
   }, []);

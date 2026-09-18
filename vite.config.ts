@@ -203,10 +203,15 @@ function vitePluginStorageProxy(): Plugin {
   };
 }
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginStorageProxy()];
+/**
+ * إضافات Manus التطويرية (محدّد المواقع في JSX، ومجمّع سجلات المتصفح، ووسيط
+ * التخزين) تخدم التطوير المحلي فقط. إبقاؤها في بناء الإنتاج يحقن شفرة ووسوماً
+ * لا تقابلها خدمة على الاستضافة، فتُستبعد هناك.
+ */
+const devOnlyPlugins = [jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginStorageProxy()];
 
-export default defineConfig({
-  plugins,
+export default defineConfig(({ mode }) => ({
+  plugins: mode === "production" ? [react(), tailwindcss()] : [react(), tailwindcss(), ...devOnlyPlugins],
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "client", "src"),
@@ -219,6 +224,12 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    // أسماء الدوال وخرائط المصدر تجعل أخطاء الإنتاج قابلة للتشخيص بدل «$ is not a function».
+    sourcemap: true,
+    minify: "esbuild" as const,
+  },
+  esbuild: {
+    keepNames: true,
   },
   server: {
     port: 3000,
@@ -238,4 +249,4 @@ export default defineConfig({
       deny: ["**/.*"],
     },
   },
-});
+}));
