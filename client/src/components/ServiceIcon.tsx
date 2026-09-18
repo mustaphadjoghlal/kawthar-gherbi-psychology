@@ -11,6 +11,7 @@ import {
   Leaf,
   MessageCircleHeart,
   Moon,
+  Palette,
   ShieldCheck,
   Sparkles,
   Sprout,
@@ -33,6 +34,7 @@ const iconMap = {
   BookOpen,
   Users,
   Brain,
+  Palette,
 };
 
 export function ServiceIcon({ icon, className = "" }: { icon: string; className?: string }) {

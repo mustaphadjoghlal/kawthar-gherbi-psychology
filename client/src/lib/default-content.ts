@@ -56,6 +56,7 @@ export const ICON_OPTIONS = [
   { value: "BookOpen", label: "كتاب" },
   { value: "Users", label: "مجموعة" },
   { value: "Brain", label: "إدراك" },
+  { value: "Palette", label: "لوحة ألوان" },
 ] as const;
 
 /** الهوية مشتقة من شعار BLUE PSYART: كحلي #011E5B وبرتقالي #FD643C. */
@@ -75,9 +76,9 @@ export const defaultSiteTheme: SiteTheme = {
 };
 
 export const defaultSiteInfo: SiteInfo = {
-  name: "كوثر غربي",
-  role: "أخصائية نفسية",
-  heroEyebrow: "مساحة آمنة للحوار والنمو",
+  name: "BLUE PSYART",
+  role: "للإرشاد النفسي والعلاج بالفن",
+  heroEyebrow: "أيقظ روحك بالفن",
   heroTitle: "خطوة هادئة نحو فهم ما تمرّين به.",
   heroDescription:
     "هنا مساحة مهنية مريحة للإصغاء والتأمل، تُرتّب فيها الأفكار والمشاعر بخطوات عملية تناسبك.",
@@ -101,8 +102,8 @@ export const defaultSiteInfo: SiteInfo = {
   aboutImage: ASSETS.dialogue,
   articleImage: ASSETS.journal,
   logo: ASSETS.mark,
-  metaTitle: "كوثر غربي | أخصائية نفسية",
-  metaDescription: "كوثر غربي، أخصائية نفسية. مساحة هادئة للحوار والفهم والنمو.",
+  metaTitle: "BLUE PSYART | للإرشاد النفسي والعلاج بالفن",
+  metaDescription: "BLUE PSYART — إرشاد نفسي وعلاج بالفن مع الأخصائية النفسية كوثر غربي. مساحة هادئة للحوار والفهم والنمو.",
   theme: defaultSiteTheme,
 };
 
@@ -318,13 +319,22 @@ export const defaultPrinciples: Principle[] = [
 
 export const defaultServices: Service[] = [
   {
+    id: "art-therapy",
+    title: "العلاج بالفن",
+    shortDescription: "تعبير عن المشاعر بالرسم واللون حين تعجز الكلمات.",
+    description:
+      "جلسات تستعين بالوسائط الفنية للوصول إلى ما يصعب قوله مباشرة. لا تتطلب موهبة ولا خبرة سابقة؛ فالعمل على المعنى الذي يظهر أثناء التعبير، لا على جودة العمل الفني.",
+    icon: "Palette",
+    position: 1,
+  },
+  {
     id: "individual",
     title: "جلسات فردية",
     shortDescription: "مساحة شخصية لفهم ما يثقل يومك واستكشاف ما يعينك.",
     description:
       "حوار فردي هادئ يُصمَّم وفق ما تودّين التوقف عنده، من التوتر اليومي إلى التحولات الشخصية والعلاقات.",
     icon: "Sparkles",
-    position: 1,
+    position: 2,
   },
   {
     id: "couples",
@@ -333,7 +343,7 @@ export const defaultServices: Service[] = [
     description:
       "جلسات تساعد على تسمية ما يحدث بين الطرفين، وتطوير لغة أقرب للتفاهم والحدود والاحتياجات المشتركة.",
     icon: "HeartHandshake",
-    position: 2,
+    position: 3,
   },
   {
     id: "youth",
@@ -342,7 +352,7 @@ export const defaultServices: Service[] = [
     description:
       "مساحة مناسبة للحديث عن ضغوط الدراسة والهوية والعلاقات والتغيرات اليومية، وفق ما يتوافق مع إطار العمل المعتمد.",
     icon: "Sprout",
-    position: 3,
+    position: 4,
   },
 ];
 

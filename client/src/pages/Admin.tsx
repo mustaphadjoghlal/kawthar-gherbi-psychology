@@ -957,6 +957,7 @@ function OverviewPanel({ onTab }: { onTab: (tab: Tab) => void }) {
 }
 
 export default function Admin() {
+  const { siteInfo } = useSiteContent();
   const [user, setUser] = useState<User | null>(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>("overview");
@@ -972,8 +973,8 @@ export default function Admin() {
     <main className="admin-page">
       <aside className="admin-sidebar">
         <Link href="/" className="admin-sidebar-brand">
-          <span className="admin-brand-symbol">ك</span>
-          <span><strong>كوثر غربي</strong><small>إدارة الموقع</small></span>
+          <img className="admin-brand-logo" src={siteInfo.logo} alt="" />
+          <span><strong>{siteInfo.name}</strong><small>إدارة الموقع</small></span>
         </Link>
         <nav>
           {tabGroups.map((group) => (
