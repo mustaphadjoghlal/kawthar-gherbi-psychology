@@ -1,47 +1,55 @@
 rules_version = '2';
 
+// موقع كوثر غربي يشارك مشروع Firebase الخاص بموقع مصطفى جغلال، ولذلك تُسبق
+// مجموعاته بـ kawthar_ حتى لا تختلط ببيانات ذلك الموقع.
+//
+// تحذير: إن كنتِ تنشرين هذه القواعد في مشروع مشترك، فأضيفي كتل match أدناه
+// إلى القواعد الموجودة بدل استبدالها بالكامل، وإلا تعطّل الموقع الآخر.
+
 service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() {
       return request.auth != null;
     }
 
-    match /siteInfo/{documentId} {
+    match /kawthar_siteInfo/{documentId} {
       allow read: if true;
       allow write: if signedIn();
     }
 
-    match /siteContent/{documentId} {
+    match /kawthar_siteContent/{documentId} {
       allow read: if true;
       allow write: if signedIn();
     }
 
-    match /navLinks/{documentId} {
+    match /kawthar_navLinks/{documentId} {
       allow read: if true;
       allow write: if signedIn();
     }
 
-    match /principles/{documentId} {
+    match /kawthar_principles/{documentId} {
       allow read: if true;
       allow write: if signedIn();
     }
 
-    match /services/{documentId} {
+    match /kawthar_services/{documentId} {
       allow read: if true;
       allow write: if signedIn();
     }
 
-    match /articles/{documentId} {
+    match /kawthar_articles/{documentId} {
       allow read: if true;
       allow write: if signedIn();
     }
 
-    match /testimonials/{documentId} {
+    match /kawthar_testimonials/{documentId} {
       allow read: if true;
       allow write: if signedIn();
     }
 
-    match /bookingRequests/{documentId} {
+    // طلبات الحجز تحمل بيانات شخصية حسّاسة: يُسمح بالإنشاء من النموذج العام،
+    // ولا تُقرأ إلا بعد تسجيل الدخول.
+    match /kawthar_bookingRequests/{documentId} {
       allow create: if request.resource.data.keys().hasAll([
         'name', 'email', 'phone', 'preferredService', 'preferredTime', 'message', 'createdAt'
       ])

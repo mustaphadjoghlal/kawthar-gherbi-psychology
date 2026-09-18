@@ -1,8 +1,12 @@
 rules_version = '2';
 
+// ملفات موقع كوثر غربي تعيش في مجلد kawthar-assets داخل Storage المشترك.
+// عند النشر في مشروع مشترك، أضيفي كتلة match أدناه إلى القواعد الموجودة
+// بدل استبدالها، وإلا تعطّل رفع الملفات في الموقع الآخر.
+
 service firebase.storage {
   match /b/{bucket}/o {
-    match /site-assets/{fileName} {
+    match /kawthar-assets/{fileName} {
       allow read: if true;
       allow write: if request.auth != null
         && request.resource.size < 5 * 1024 * 1024

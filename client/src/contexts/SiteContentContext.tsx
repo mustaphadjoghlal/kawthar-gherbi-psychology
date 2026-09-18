@@ -5,6 +5,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, setDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { firestoreDb, firebaseStorage, isFirebaseConfigured } from "@/lib/firebase";
+import { COLLECTION_PREFIX, STORAGE_FOLDER } from "@/lib/firebase-config";
 import {
   defaultArticles,
   defaultNavLinks,
@@ -67,6 +68,12 @@ type CachedShape = {
   articles: Article[];
   testimonials: Testimonial[];
 };
+
+/**
+ * اسم المجموعة داخل المشروع المشترك. السابقة تفصل بيانات هذا الموقع عن
+ * بيانات موقع مصطفى، إذ يتشارك الموقعان اسمَي articles وsiteInfo.
+ */
+const col = (name: string) => `${COLLECTION_PREFIX}${name}`;
 
 const sortByPosition = <T extends { position: number }>(items: T[]) =>
   [...items].sort((a, b) => a.position - b.position);
@@ -174,7 +181,7 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
     if (!firestoreDb) return;
     const db = firestoreDb;
     const unsubscribers = [
-      onSnapshot(doc(db, "siteInfo", "profile"), (snapshot) => {
+      onSnapshot(doc(db, col("siteInfo"), "profile"), (snapshot) => {
         if (snapshot.exists()) {
           const next = resolveSiteInfo(snapshot.data() as Partial<SiteInfo>);
           setSiteInfo(next);
@@ -182,42 +189,42 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
         }
         setIsLoading(false);
       }),
-      onSnapshot(doc(db, "siteContent", "copy"), (snapshot) => {
+      onSnapshot(doc(db, col("siteContent"), "copy"), (snapshot) => {
         if (!snapshot.exists()) return;
         const next = resolveCopy(snapshot.data() as Partial<SiteCopy>);
         setCopy(next);
         writeCache({ copy: next });
       }),
-      onSnapshot(query(collection(db, "navLinks"), orderBy("position")), (snapshot) => {
+      onSnapshot(query(collection(db, col("navLinks")), orderBy("position")), (snapshot) => {
         if (snapshot.empty) return;
         const next = sortByPosition(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as NavLink));
         setNavLinks(next);
         writeCache({ navLinks: next });
       }),
-      onSnapshot(query(collection(db, "principles"), orderBy("position")), (snapshot) => {
+      onSnapshot(query(collection(db, col("principles")), orderBy("position")), (snapshot) => {
         if (snapshot.empty) return;
         const next = sortByPosition(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as Principle));
         setPrinciples(next);
         writeCache({ principles: next });
       }),
-      onSnapshot(query(collection(db, "services"), orderBy("position")), (snapshot) => {
+      onSnapshot(query(collection(db, col("services")), orderBy("position")), (snapshot) => {
         if (snapshot.empty) return;
         const next = sortByPosition(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as Service));
         setServices(next);
         writeCache({ services: next });
       }),
-      onSnapshot(query(collection(db, "articles"), orderBy("position")), (snapshot) => {
+      onSnapshot(query(collection(db, col("articles")), orderBy("position")), (snapshot) => {
         if (snapshot.empty) return;
         const next = sortByPosition(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as Article));
         setArticles(next);
         writeCache({ articles: next });
       }),
-      onSnapshot(query(collection(db, "testimonials"), orderBy("position")), (snapshot) => {
+      onSnapshot(query(collection(db, col("testimonials")), orderBy("position")), (snapshot) => {
         const next = sortByPosition(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as Testimonial));
         setTestimonials(next);
         writeCache({ testimonials: next });
       }),
-      onSnapshot(query(collection(db, "bookingRequests"), orderBy("createdAt", "desc")), (snapshot) => {
+      onSnapshot(query(collection(db, col("bookingRequests")), orderBy("createdAt", "desc")), (snapshot) => {
         setBookings(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as BookingRequest));
       }),
     ];
@@ -281,35 +288,35 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
   const saveIn = async <T extends { id?: string }>(collectionName: string, data: T) => {
     const db = ensureDb();
     const { id, ...payload } = data;
-    if (id) await setDoc(doc(db, collectionName, id), payload, { merge: true });
-    else await addDoc(collection(db, collectionName), payload);
+    if (id) await setDoc(doc(db, col(collectionName), id), payload, { merge: true });
+    else await addDoc(collection(db, col(collectionName)), payload);
   };
 
   const saveSiteInfo = async (data: SiteInfo) => {
-    await setDoc(doc(ensureDb(), "siteInfo", "profile"), data, { merge: true });
+    await setDoc(doc(ensureDb(), col("siteInfo"), "profile"), data, { merge: true });
   };
   const saveCopy = async (data: SiteCopy) => {
-    await setDoc(doc(ensureDb(), "siteContent", "copy"), data, { merge: true });
+    await setDoc(doc(ensureDb(), col("siteContent"), "copy"), data, { merge: true });
   };
   const saveNavLink = (data: Omit<NavLink, "id"> & { id?: string }) => saveIn("navLinks", data);
-  const deleteNavLink = async (id: string) => deleteDoc(doc(ensureDb(), "navLinks", id));
+  const deleteNavLink = async (id: string) => deleteDoc(doc(ensureDb(), col("navLinks"), id));
   const savePrinciple = (data: Omit<Principle, "id"> & { id?: string }) => saveIn("principles", data);
-  const deletePrinciple = async (id: string) => deleteDoc(doc(ensureDb(), "principles", id));
+  const deletePrinciple = async (id: string) => deleteDoc(doc(ensureDb(), col("principles"), id));
   const saveService = (data: Omit<Service, "id"> & { id?: string }) => saveIn("services", data);
-  const deleteService = async (id: string) => deleteDoc(doc(ensureDb(), "services", id));
+  const deleteService = async (id: string) => deleteDoc(doc(ensureDb(), col("services"), id));
   const saveArticle = (data: Omit<Article, "id"> & { id?: string }) => saveIn("articles", data);
-  const deleteArticle = async (id: string) => deleteDoc(doc(ensureDb(), "articles", id));
+  const deleteArticle = async (id: string) => deleteDoc(doc(ensureDb(), col("articles"), id));
   const saveTestimonial = (data: Omit<Testimonial, "id"> & { id?: string }) => saveIn("testimonials", data);
-  const deleteTestimonial = async (id: string) => deleteDoc(doc(ensureDb(), "testimonials", id));
+  const deleteTestimonial = async (id: string) => deleteDoc(doc(ensureDb(), col("testimonials"), id));
   const createBooking = async (data: Omit<BookingRequest, "id" | "createdAt">) => {
-    await addDoc(collection(ensureDb(), "bookingRequests"), { ...data, createdAt: new Date().toISOString() });
+    await addDoc(collection(ensureDb(), col("bookingRequests")), { ...data, createdAt: new Date().toISOString() });
   };
-  const deleteBooking = async (id: string) => deleteDoc(doc(ensureDb(), "bookingRequests", id));
+  const deleteBooking = async (id: string) => deleteDoc(doc(ensureDb(), col("bookingRequests"), id));
 
   const uploadImage = async (file: File, onProgress?: (percent: number) => void) => {
     if (!firebaseStorage) throw new Error(STORAGE_DISABLED_MESSAGE);
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
-    const storageRef = ref(firebaseStorage, `site-assets/${Date.now()}-${safeName}`);
+    const storageRef = ref(firebaseStorage, `${STORAGE_FOLDER}/${Date.now()}-${safeName}`);
     const task = uploadBytesResumable(storageRef, file);
     return new Promise<string>((resolve, reject) => {
       task.on(
@@ -323,13 +330,13 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
 
   const seedContent = async () => {
     const db = ensureDb();
-    await setDoc(doc(db, "siteInfo", "profile"), defaultSiteInfo);
-    await setDoc(doc(db, "siteContent", "copy"), defaultSiteCopy);
+    await setDoc(doc(db, col("siteInfo"), "profile"), defaultSiteInfo);
+    await setDoc(doc(db, col("siteContent"), "copy"), defaultSiteCopy);
     await Promise.all([
-      ...defaultNavLinks.map(({ id, ...item }) => setDoc(doc(db, "navLinks", id), item)),
-      ...defaultPrinciples.map(({ id, ...item }) => setDoc(doc(db, "principles", id), item)),
-      ...defaultServices.map(({ id, ...item }) => setDoc(doc(db, "services", id), item)),
-      ...defaultArticles.map(({ id, ...item }) => setDoc(doc(db, "articles", id), item)),
+      ...defaultNavLinks.map(({ id, ...item }) => setDoc(doc(db, col("navLinks"), id), item)),
+      ...defaultPrinciples.map(({ id, ...item }) => setDoc(doc(db, col("principles"), id), item)),
+      ...defaultServices.map(({ id, ...item }) => setDoc(doc(db, col("services"), id), item)),
+      ...defaultArticles.map(({ id, ...item }) => setDoc(doc(db, col("articles"), id), item)),
     ]);
   };
 
