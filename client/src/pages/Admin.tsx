@@ -423,6 +423,35 @@ function NavLinkEditor({ current, nextPosition, onCancel }: { current?: NavLink;
   );
 }
 
+/** صور الواجهة تُحفظ في بيانات الموقع، لكنها تُحرَّر هنا حيث يبحث عنها المستخدم. */
+function HeroVisualsForm() {
+  const { siteInfo, saveSiteInfo, uploadImage } = useSiteContent();
+  const [draft, setDraft] = useState<SiteInfo>(siteInfo);
+  useEffect(() => setDraft(siteInfo), [siteInfo]);
+  const update = (key: keyof SiteInfo, value: string) => setDraft((current) => ({ ...current, [key]: value }));
+  const handleSave = async (event: React.FormEvent) => {
+    event.preventDefault();
+    try { await saveSiteInfo(draft); toast.success("تم حفظ صور الواجهة."); }
+    catch (error) { toast.error(error instanceof Error ? error.message : "تعذر الحفظ."); }
+  };
+  return (
+    <form className="admin-block" onSubmit={handleSave}>
+      <div className="admin-block-heading">
+        <h3>صور الواجهة</h3>
+        <p>استبدلي الشكل الافتراضي بصورة حقيقية. عند استخدام صورة شخص، اضبطي بؤرة القصّ على «الأعلى» كي يبقى الوجه ظاهراً داخل القوس.</p>
+      </div>
+      <div className="admin-form-grid">
+        <ImageField label="صورة الواجهة الرئيسية" value={draft.heroImage} onChange={(url) => update("heroImage", url)} uploadImage={uploadImage} />
+        <SelectField label="بؤرة القصّ" value={draft.heroImagePosition} onChange={(value) => update("heroImagePosition", value)} options={IMAGE_POSITIONS as ReadonlyArray<{ value: string; label: string }>} />
+        <RangeField label="تعتيم الصورة" hint="0 بلا تعتيم. خفّضيه مع الصور الشخصية." value={draft.heroImageOverlay} onChange={(value) => update("heroImageOverlay", value)} min={0} max={45} step={1} unit="%" />
+        <ImageField label="صورة الشريط التعريفي" value={draft.aboutImage} onChange={(url) => update("aboutImage", url)} uploadImage={uploadImage} />
+        <SelectField label="بؤرة قصّ الشريط التعريفي" value={draft.aboutImagePosition} onChange={(value) => update("aboutImagePosition", value)} options={IMAGE_POSITIONS as ReadonlyArray<{ value: string; label: string }>} />
+      </div>
+      <SaveButton label="حفظ الصور" />
+    </form>
+  );
+}
+
 function HomePanel() {
   const { draft, save, update } = useCopyDraft("home");
   const setSection = (key: "welcome" | "services" | "about" | "articles" | "testimonials" | "cta") =>
@@ -433,15 +462,15 @@ function HomePanel() {
     update("heroNotes", notes);
   };
   return (
-    <form className="admin-panel" onSubmit={save}>
+    <section className="admin-panel">
       <PanelHeading
         kicker="هيكل الموقع"
         title="الصفحة الرئيسية"
-        description="كل مقطع في الصفحة الرئيسية له نصوصه وزره ومفتاح إظهاره."
-        action={<SaveButton />}
+        description="صور الواجهة ونصوص كل مقطع، ولكل منها زر حفظ خاص."
       />
-
-      <SectionBlock title="واجهة البداية" description="النصوص المحيطة بالعنوان الرئيسي. عناوين البطل نفسها في «بيانات الموقع».">
+      <HeroVisualsForm />
+      <form onSubmit={save}>
+      <SectionBlock title="نصوص واجهة البداية" description="النصوص المحيطة بالعنوان الرئيسي. عناوين البطل نفسها في «بيانات الموقع».">
         <div className="admin-form-grid">
           <TextField label="نص الزر الأساسي" value={draft.heroPrimaryCta} onChange={(value) => update("heroPrimaryCta", value)} hint="اتركيه فارغاً لإخفاء الزر" />
           <TextField label="وجهة الزر الأساسي" dir="ltr" value={draft.heroPrimaryHref} onChange={(value) => update("heroPrimaryHref", value)} />
@@ -479,7 +508,9 @@ function HomePanel() {
           <TextArea label="نص الدعوة" value={draft.ctaText} onChange={(value) => update("ctaText", value)} />
         </div>
       </SectionBlock>
-    </form>
+      <SaveButton label="حفظ نصوص الصفحة الرئيسية" />
+      </form>
+    </section>
   );
 }
 
@@ -919,6 +950,7 @@ function OverviewPanel({ onTab }: { onTab: (tab: Tab) => void }) {
   ];
   const shortcuts: Array<{ label: string; description: string; tab: Tab }> = [
     { label: "الهوية البصرية", description: "الألوان والخطوط وشكل الحواف.", tab: "theme" },
+    { label: "بيانات الموقع", description: "الاسم والصور والتواصل ونصوص البطل.", tab: "profile" },
     { label: "الصفحة الرئيسية", description: "نصوص كل مقطع وإظهاره أو إخفاؤه.", tab: "home" },
     { label: "التنقل والترويسة", description: "روابط القائمة وترتيبها وزر الحجز.", tab: "navigation" },
     { label: "نصوص الصفحات", description: "من أنا، الخدمات، المقالات، التواصل، 404.", tab: "pages" },
