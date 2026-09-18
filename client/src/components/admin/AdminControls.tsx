@@ -8,6 +8,7 @@ import {
   EyeOff,
   Heading2,
   Heading3,
+  ImageOff,
   ImagePlus,
   Italic,
   Link2,
@@ -18,6 +19,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { ARABIC_FONTS, ICON_OPTIONS } from "@/lib/default-content";
+import { STORAGE_DISABLED_MESSAGE } from "@/contexts/SiteContentContext";
 import type { SectionCopy } from "@/types/site";
 
 export function Field({ label, children, className = "", hint }: { label: string; children: React.ReactNode; className?: string; hint?: string }) {
@@ -137,6 +139,7 @@ export function ImageField({ label, value, onChange, uploadImage }: {
   uploadImage: (file: File, onProgress?: (percent: number) => void) => Promise<string>;
 }) {
   const [progress, setProgress] = useState<number | null>(null);
+  const [uploadUnavailable, setUploadUnavailable] = useState(false);
   const handleFile = async (file?: File) => {
     if (!file) return;
     setProgress(0);
@@ -144,22 +147,29 @@ export function ImageField({ label, value, onChange, uploadImage }: {
       onChange(await uploadImage(file, setProgress));
       toast.success("تم رفع الصورة.");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "تعذر رفع الصورة.");
+      const message = error instanceof Error ? error.message : "تعذر رفع الصورة.";
+      if (message === STORAGE_DISABLED_MESSAGE) setUploadUnavailable(true);
+      toast.error(message);
     } finally {
       setProgress(null);
     }
   };
   return (
     <div className="admin-image-field">
-      <Field label={label}>
+      <Field label={label} hint="الصقي رابط صورة، أو ارفعي ملفاً إن كان Cloud Storage مفعّلاً.">
         <input value={value} onChange={(event) => onChange(event.target.value)} placeholder="رابط الصورة" dir="ltr" />
       </Field>
-      <label className="upload-button">
-        <ImagePlus size={16} />
-        {progress === null ? "رفع صورة" : `جارٍ الرفع ${progress}%`}
-        <input type="file" accept="image/*" onChange={(event) => handleFile(event.target.files?.[0])} disabled={progress !== null} />
-      </label>
+      {uploadUnavailable ? (
+        <span className="upload-disabled" title={STORAGE_DISABLED_MESSAGE}><ImageOff size={16} />الرفع غير مفعّل</span>
+      ) : (
+        <label className="upload-button">
+          <ImagePlus size={16} />
+          {progress === null ? "رفع صورة" : `جارٍ الرفع ${progress}%`}
+          <input type="file" accept="image/*" onChange={(event) => handleFile(event.target.files?.[0])} disabled={progress !== null} />
+        </label>
+      )}
       {progress !== null && <div className="upload-progress"><i style={{ width: `${progress}%` }} /></div>}
+      {uploadUnavailable && <p className="upload-note">{STORAGE_DISABLED_MESSAGE}</p>}
       {value && <img src={value} alt="معاينة" />}
     </div>
   );

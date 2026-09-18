@@ -90,6 +90,27 @@ function mergeDeep<T>(base: T, override: unknown): T {
 const resolveSiteInfo = (data: Partial<SiteInfo>): SiteInfo => mergeDeep(defaultSiteInfo, data);
 const resolveCopy = (data: Partial<SiteCopy>): SiteCopy => mergeDeep(defaultSiteCopy, data);
 
+/**
+ * رفع الملفات يحتاج Cloud Storage، وهو يتطلب خطة Blaze في المشاريع الحديثة.
+ * الموقع يعمل كاملاً بدونه لأن كل حقل صورة يقبل رابطاً مباشراً.
+ */
+export const STORAGE_DISABLED_MESSAGE =
+  "رفع الملفات يتطلب تفعيل Cloud Storage في مشروع Firebase. يمكنك لصق رابط صورة في الحقل بدلاً من ذلك.";
+
+/** يترجم أخطاء Storage إلى رسالة تقول للمستخدمة ما العمل. */
+function describeStorageError(error: unknown): Error {
+  const code = String((error as { code?: string })?.code ?? "");
+  if (code.includes("bucket-not-found") || code.includes("project-not-found") || code.includes("unknown")) {
+    return new Error(STORAGE_DISABLED_MESSAGE);
+  }
+  if (code.includes("unauthorized") || code.includes("unauthenticated")) {
+    return new Error("رفع الصور غير مصرّح به. تأكدي من تسجيل الدخول ومن نشر قواعد Storage المرفقة.");
+  }
+  if (code.includes("quota-exceeded")) return new Error("امتلأت مساحة التخزين المتاحة في مشروع Firebase.");
+  if (code.includes("canceled")) return new Error("أُلغي رفع الملف.");
+  return error instanceof Error ? error : new Error("تعذر رفع الملف.");
+}
+
 const toRgba = (hex: string, alpha: number) => {
   const value = hex.replace("#", "");
   const normalized = value.length === 3 ? value.split("").map((item) => item + item).join("") : value;
@@ -286,7 +307,7 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
   const deleteBooking = async (id: string) => deleteDoc(doc(ensureDb(), "bookingRequests", id));
 
   const uploadImage = async (file: File, onProgress?: (percent: number) => void) => {
-    if (!firebaseStorage) throw new Error("لم تُضف إعدادات Firebase Storage بعد.");
+    if (!firebaseStorage) throw new Error(STORAGE_DISABLED_MESSAGE);
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
     const storageRef = ref(firebaseStorage, `site-assets/${Date.now()}-${safeName}`);
     const task = uploadBytesResumable(storageRef, file);
@@ -294,7 +315,7 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
       task.on(
         "state_changed",
         (snapshot) => onProgress?.(Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100)),
-        reject,
+        (error) => reject(describeStorageError(error)),
         async () => resolve(await getDownloadURL(task.snapshot.ref)),
       );
     });
