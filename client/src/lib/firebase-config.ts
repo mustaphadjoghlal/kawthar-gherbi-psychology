@@ -11,10 +11,10 @@
  * ما يتيح استخدام مشروع Firebase مختلف للتجارب من دون تعديل الكود.
  */
 export const firebaseConfigFallback = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: "",
+  apiKey: "AIzaSyAsD0Us9u7lzKYy7VaEyZs091foGjCRA70",
+  authDomain: "kawther-gherbi.firebaseapp.com",
+  projectId: "kawther-gherbi",
+  storageBucket: "kawther-gherbi.firebasestorage.app",
+  messagingSenderId: "683448368253",
+  appId: "1:683448368253:web:93842e5841043496180514",
 };
