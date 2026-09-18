@@ -41,7 +41,12 @@ export type SiteInfo = {
   location: string;
   availability: string;
   heroImage: string;
+  /** بؤرة قصّ صورة الواجهة، مثل "center" أو "top". تُهم عند استخدام صورة شخص. */
+  heroImagePosition: string;
+  /** شدة التعتيم فوق صورة الواجهة من 0 إلى 100. */
+  heroImageOverlay: string;
   aboutImage: string;
+  aboutImagePosition: string;
   articleImage: string;
   logo: string;
   metaTitle: string;

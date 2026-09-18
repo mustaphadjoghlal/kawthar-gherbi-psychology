@@ -40,6 +40,17 @@ export const ARABIC_FONTS = [
   { value: "Reem Kufi", label: "ريم كوفي (كوفي حديث)" },
 ] as const;
 
+/** مواضع قصّ الصور. المهم عند صورة شخص أن يبقى الوجه ظاهراً. */
+export const IMAGE_POSITIONS = [
+  { value: "center", label: "الوسط" },
+  { value: "top", label: "الأعلى (مناسب للوجوه)" },
+  { value: "bottom", label: "الأسفل" },
+  { value: "left", label: "اليسار" },
+  { value: "right", label: "اليمين" },
+  { value: "top left", label: "أعلى اليسار" },
+  { value: "top right", label: "أعلى اليمين" },
+] as const;
+
 /** الأيقونات المتاحة للخدمات والمبادئ. */
 export const ICON_OPTIONS = [
   { value: "Sparkles", label: "لمعة هادئة" },
@@ -99,7 +110,10 @@ export const defaultSiteInfo: SiteInfo = {
   location: "",
   availability: "بالموعد المسبق",
   heroImage: ASSETS.hero,
+  heroImagePosition: "center",
+  heroImageOverlay: "16",
   aboutImage: ASSETS.dialogue,
+  aboutImagePosition: "center",
   articleImage: ASSETS.journal,
   logo: ASSETS.mark,
   metaTitle: "BLUE PSYART | للإرشاد النفسي والعلاج بالفن",

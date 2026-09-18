@@ -21,7 +21,7 @@ export default function About() {
       <section className="about-story-section">
         <div className="container about-story-grid">
           <div className="about-story-image">
-            <img src={siteInfo.aboutImage} alt="مساحة حوار هادئة" />
+            <img src={siteInfo.aboutImage} alt="" style={{ objectPosition: siteInfo.aboutImagePosition }} />
             {about.imageCaption && <span className="image-caption">{about.imageCaption}</span>}
           </div>
           <div className="about-story-copy">

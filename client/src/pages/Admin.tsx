@@ -31,6 +31,7 @@ import {
 import { toast } from "sonner";
 import { firebaseAuth, isFirebaseConfigured } from "@/lib/firebase";
 import { useSiteContent } from "@/contexts/SiteContentContext";
+import { IMAGE_POSITIONS } from "@/lib/default-content";
 import {
   ColorField,
   Field,
@@ -40,6 +41,7 @@ import {
   RangeField,
   RichTextEditor,
   SectionFields,
+  SelectField,
   TextArea,
   TextField,
   VisibilityToggle,
@@ -324,10 +326,13 @@ function ProfilePanel() {
         </div>
       </SectionBlock>
 
-      <SectionBlock title="الصور">
+      <SectionBlock title="الصور" description="ارفعي صورة أو الصقي رابطها. عند استخدام صورة شخص، اضبطي «بؤرة القصّ» كي يبقى الوجه ظاهراً داخل الإطار.">
         <div className="admin-form-grid">
           <ImageField label="صورة الواجهة الرئيسية" value={draft.heroImage} onChange={(url) => update("heroImage", url)} uploadImage={uploadImage} />
+          <SelectField label="بؤرة قصّ صورة الواجهة" value={draft.heroImagePosition} onChange={(value) => update("heroImagePosition", value)} options={IMAGE_POSITIONS as ReadonlyArray<{ value: string; label: string }>} />
+          <RangeField label="تعتيم صورة الواجهة" hint="0 بلا تعتيم. خفّضيه عند استخدام صورة شخصية." value={draft.heroImageOverlay} onChange={(value) => update("heroImageOverlay", value)} min={0} max={45} step={1} unit="%" />
           <ImageField label="صورة «عن كوثر»" value={draft.aboutImage} onChange={(url) => update("aboutImage", url)} uploadImage={uploadImage} />
+          <SelectField label="بؤرة قصّ صورة «عن كوثر»" value={draft.aboutImagePosition} onChange={(value) => update("aboutImagePosition", value)} options={IMAGE_POSITIONS as ReadonlyArray<{ value: string; label: string }>} />
           <ImageField label="صورة المقالات الافتراضية" value={draft.articleImage} onChange={(url) => update("articleImage", url)} uploadImage={uploadImage} />
         </div>
       </SectionBlock>

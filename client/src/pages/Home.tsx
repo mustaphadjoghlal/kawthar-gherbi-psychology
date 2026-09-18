@@ -32,7 +32,16 @@ export default function Home() {
             )}
           </div>
           <div className="hero-image-wrap">
-            <div className="hero-image-arch"><img src={siteInfo.heroImage} alt={`${siteInfo.name} في مساحة استشارة هادئة`} /></div>
+            <div
+              className="hero-image-arch"
+              style={{ "--hero-overlay": Number(siteInfo.heroImageOverlay) / 100 } as React.CSSProperties}
+            >
+              <img
+                src={siteInfo.heroImage}
+                alt={`${siteInfo.name} — ${siteInfo.role}`}
+                style={{ objectPosition: siteInfo.heroImagePosition }}
+              />
+            </div>
             {home.heroCardText && (
               <div className="hero-card"><span className="hero-card-line" /> <strong>{home.heroCardText}</strong></div>
             )}
@@ -81,7 +90,7 @@ export default function Home() {
       {home.about.visible && (
         <section className="about-band">
           <div className="container about-band-grid">
-            <div className="about-photo"><img src={siteInfo.aboutImage} alt="زاوية مخصصة للحوار الهادئ" /></div>
+            <div className="about-photo"><img src={siteInfo.aboutImage} alt="" style={{ objectPosition: siteInfo.aboutImagePosition }} /></div>
             <div className="about-band-copy">
               <p className="eyebrow light"><span />{home.about.eyebrow}</p>
               <h2>{home.about.title || siteInfo.philosophyTitle}</h2>
