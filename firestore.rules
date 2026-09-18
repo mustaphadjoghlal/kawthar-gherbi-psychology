@@ -1,10 +1,7 @@
 rules_version = '2';
 
-// موقع كوثر غربي يشارك مشروع Firebase الخاص بموقع مصطفى جغلال، ولذلك تُسبق
-// مجموعاته بـ kawthar_ حتى لا تختلط ببيانات ذلك الموقع.
-//
-// تحذير: إن كنتِ تنشرين هذه القواعد في مشروع مشترك، فأضيفي كتل match أدناه
-// إلى القواعد الموجودة بدل استبدالها بالكامل، وإلا تعطّل الموقع الآخر.
+// الموقع يملك مشروع Firebase الخاص به، فأسماء المجموعات مجردة بلا سابقة.
+// القراءة عامة لأن محتوى الموقع معروض للزوار، والكتابة تتطلب تسجيل الدخول.
 
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -12,44 +9,44 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    match /kawthar_siteInfo/{documentId} {
+    match /siteInfo/{documentId} {
       allow read: if true;
       allow write: if signedIn();
     }
 
-    match /kawthar_siteContent/{documentId} {
+    match /siteContent/{documentId} {
       allow read: if true;
       allow write: if signedIn();
     }
 
-    match /kawthar_navLinks/{documentId} {
+    match /navLinks/{documentId} {
       allow read: if true;
       allow write: if signedIn();
     }
 
-    match /kawthar_principles/{documentId} {
+    match /principles/{documentId} {
       allow read: if true;
       allow write: if signedIn();
     }
 
-    match /kawthar_services/{documentId} {
+    match /services/{documentId} {
       allow read: if true;
       allow write: if signedIn();
     }
 
-    match /kawthar_articles/{documentId} {
+    match /articles/{documentId} {
       allow read: if true;
       allow write: if signedIn();
     }
 
-    match /kawthar_testimonials/{documentId} {
+    match /testimonials/{documentId} {
       allow read: if true;
       allow write: if signedIn();
     }
 
     // طلبات الحجز تحمل بيانات شخصية حسّاسة: يُسمح بالإنشاء من النموذج العام،
-    // ولا تُقرأ إلا بعد تسجيل الدخول.
-    match /kawthar_bookingRequests/{documentId} {
+    // ولا تُقرأ ولا تُعدّل إلا بعد تسجيل الدخول.
+    match /bookingRequests/{documentId} {
       allow create: if request.resource.data.keys().hasAll([
         'name', 'email', 'phone', 'preferredService', 'preferredTime', 'message', 'createdAt'
       ])
