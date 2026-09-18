@@ -33,20 +33,20 @@
 }
 
 :root {
-  --ink: #182c3a;
-  --sage: #183b5b;
-  --sage-deep: #0e2a43;
-  --sage-soft: #d8e7f1;
-  --clay: #f18478;
-  --clay-soft: #fce0dc;
-  --ivory: #f4f7fa;
+  --ink: #12203C;
+  --sage: #011E5B;
+  --sage-deep: #01143D;
+  --sage-soft: #D9E3F4;
+  --clay: #FD643C;
+  --clay-soft: #FFE0D6;
+  --ivory: #F5F7FB;
   --paper: #ffffff;
-  --sand: #e6edf2;
-  --mist: #edf4f8;
-  --line: rgba(14, 42, 67, 0.15);
-  --footer: #112c45;
-  --font-display: "Aref Ruqaa Ink";
-  --font-body: "IBM Plex Sans Arabic";
+  --sand: #FFEAE2;
+  --mist: #EEF2FA;
+  --line: rgba(1, 20, 61, 0.15);
+  --footer: #011E5B;
+  --font-display: "Cairo";
+  --font-body: "Tajawal";
   --base-font-size: 16px;
   --background: var(--ivory);
   --foreground: var(--ink);

@@ -12,13 +12,18 @@ import type {
   SiteTheme,
 } from "@/types/site";
 
+/**
+ * أصول الهوية. الصور الافتراضية أشكال هندسية مشتقة من شعار BLUE PSYART،
+ * تُستبدل بصور حقيقية من لوحة الإدارة متى توفرت.
+ */
 export const ASSETS = {
-  hero: "/manus-storage/kawthar-hero-therapy-sanctuary_d99d4ac4.jpg",
-  dialogue: "/manus-storage/kawthar-space-for-dialogue_7e92f78f.jpg",
-  journal: "/manus-storage/kawthar-journal-mindfulness_0f14f068.jpg",
-  shadowWalk: "/manus-storage/kawthar-shadow-walk_2504109e.jpg",
-  paperBreath: "/manus-storage/kawthar-paper-breath_28d97e66.jpg",
-  mark: "/manus-storage/kawthar-brand-mark_cd0a65a8.png",
+  hero: "/brand/art/hero.svg",
+  dialogue: "/brand/art/dialogue.svg",
+  journal: "/brand/art/article-1.svg",
+  shadowWalk: "/brand/art/article-2.svg",
+  paperBreath: "/brand/art/article-3.svg",
+  mark: "/brand/blue-psyart-mark.png",
+  logoFull: "/brand/blue-psyart-full.png",
 };
 
 /** خطوط عربية متاحة للاختيار من لوحة الإدارة، تُحمّل من Google Fonts عند اختيارها. */
@@ -53,17 +58,18 @@ export const ICON_OPTIONS = [
   { value: "Brain", label: "إدراك" },
 ] as const;
 
+/** الهوية مشتقة من شعار BLUE PSYART: كحلي #011E5B وبرتقالي #FD643C. */
 export const defaultSiteTheme: SiteTheme = {
-  primary: "#183b5b",
-  primaryDeep: "#0e2a43",
-  accent: "#f18478",
-  background: "#f4f7fa",
-  surface: "#ffffff",
-  soft: "#d8e7f1",
-  ink: "#182c3a",
-  footer: "#112c45",
-  displayFont: "Aref Ruqaa Ink",
-  bodyFont: "IBM Plex Sans Arabic",
+  primary: "#011E5B",
+  primaryDeep: "#01143D",
+  accent: "#FD643C",
+  background: "#F5F7FB",
+  surface: "#FFFFFF",
+  soft: "#D9E3F4",
+  ink: "#12203C",
+  footer: "#011E5B",
+  displayFont: "Cairo",
+  bodyFont: "Tajawal",
   radius: "0.35",
   baseFontSize: "16",
 };

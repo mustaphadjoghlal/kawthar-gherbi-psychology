@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" width="900" height="600" role="img" aria-label="عنصر بصري من هوية BLUE PSYART">
+<rect width="900" height="600" fill="#F5F7FB"/>
+
+  <path d="M0 600 V330 A230 230 0 0 1 460 330 V600 Z" fill="#D9E3F4"/>
+  <path d="M230 600 V400 A115 115 0 0 1 460 400 V600 Z" fill="#011E5B"/>
+  <circle cx="690" cy="215" r="92" fill="#FD643C" opacity=".9"/>
+  <circle cx="330" cy="170" r="34" fill="#01143D"/>
+  <path d="M600 520 H840" stroke="#011E5B" stroke-width="5" stroke-linecap="round" opacity=".5"/>
+</svg>
