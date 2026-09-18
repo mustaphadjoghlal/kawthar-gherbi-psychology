@@ -1,7 +1,16 @@
 /**
  * Design system: «ملاذ هادئ» — محتوى بدء إنساني قابل للتبديل من لوحة التحكم فقط بعد التهيئة.
+ * كل نص هنا هو القيمة الافتراضية لحقل قابل للتحرير، لا نصاً ثابتاً في الواجهة.
  */
-import type { Article, Service, SiteInfo, SiteTheme } from "@/types/site";
+import type {
+  Article,
+  NavLink,
+  Principle,
+  Service,
+  SiteCopy,
+  SiteInfo,
+  SiteTheme,
+} from "@/types/site";
 
 export const ASSETS = {
   hero: "/manus-storage/kawthar-hero-therapy-sanctuary_d99d4ac4.jpg",
@@ -12,6 +21,38 @@ export const ASSETS = {
   mark: "/manus-storage/kawthar-brand-mark_cd0a65a8.png",
 };
 
+/** خطوط عربية متاحة للاختيار من لوحة الإدارة، تُحمّل من Google Fonts عند اختيارها. */
+export const ARABIC_FONTS = [
+  { value: "Aref Ruqaa Ink", label: "عرَف رقعة (خط عناوين كلاسيكي)" },
+  { value: "Amiri", label: "أميري (نسخ أدبي)" },
+  { value: "Noto Naskh Arabic", label: "نوتو نسخ (واضح ومتوازن)" },
+  { value: "IBM Plex Sans Arabic", label: "IBM Plex عربي (حديث)" },
+  { value: "Cairo", label: "القاهرة (عصري هندسي)" },
+  { value: "Tajawal", label: "تجوال (بسيط وأنيق)" },
+  { value: "Almarai", label: "المراعي (ناعم وواضح)" },
+  { value: "Readex Pro", label: "ريدكس برو (مقروء جداً)" },
+  { value: "Markazi Text", label: "مركزي (نسخ للقراءة الطويلة)" },
+  { value: "Reem Kufi", label: "ريم كوفي (كوفي حديث)" },
+] as const;
+
+/** الأيقونات المتاحة للخدمات والمبادئ. */
+export const ICON_OPTIONS = [
+  { value: "Sparkles", label: "لمعة هادئة" },
+  { value: "HeartHandshake", label: "تواصل" },
+  { value: "Sprout", label: "نمو" },
+  { value: "MessageCircleHeart", label: "حوار" },
+  { value: "Heart", label: "قلب" },
+  { value: "ShieldCheck", label: "أمان" },
+  { value: "CheckCircle2", label: "تأكيد" },
+  { value: "Leaf", label: "ورقة" },
+  { value: "Sun", label: "شمس" },
+  { value: "Moon", label: "هدوء ليلي" },
+  { value: "Compass", label: "بوصلة" },
+  { value: "BookOpen", label: "كتاب" },
+  { value: "Users", label: "مجموعة" },
+  { value: "Brain", label: "إدراك" },
+] as const;
+
 export const defaultSiteTheme: SiteTheme = {
   primary: "#183b5b",
   primaryDeep: "#0e2a43",
@@ -21,6 +62,10 @@ export const defaultSiteTheme: SiteTheme = {
   soft: "#d8e7f1",
   ink: "#182c3a",
   footer: "#112c45",
+  displayFont: "Aref Ruqaa Ink",
+  bodyFont: "IBM Plex Sans Arabic",
+  radius: "0.35",
+  baseFontSize: "16",
 };
 
 export const defaultSiteInfo: SiteInfo = {
@@ -43,13 +88,227 @@ export const defaultSiteInfo: SiteInfo = {
   yearsExperience: "",
   email: "",
   phone: "",
+  whatsapp: "",
   location: "",
   availability: "بالموعد المسبق",
   heroImage: ASSETS.hero,
   aboutImage: ASSETS.dialogue,
   articleImage: ASSETS.journal,
+  logo: ASSETS.mark,
+  metaTitle: "كوثر غربي | أخصائية نفسية",
+  metaDescription: "كوثر غربي، أخصائية نفسية. مساحة هادئة للحوار والفهم والنمو.",
   theme: defaultSiteTheme,
 };
+
+export const defaultNavLinks: NavLink[] = [
+  { id: "home", label: "الرئيسية", href: "/", visible: true, position: 1 },
+  { id: "about", label: "من أنا", href: "/about", visible: true, position: 2 },
+  { id: "services", label: "الخدمات", href: "/services", visible: true, position: 3 },
+  { id: "articles", label: "المقالات", href: "/articles", visible: true, position: 4 },
+  { id: "contact", label: "التواصل والحجز", href: "/contact", visible: true, position: 5 },
+];
+
+export const defaultSiteCopy: SiteCopy = {
+  header: {
+    ctaLabel: "احجزي موعداً",
+    ctaHref: "/contact",
+    showCta: true,
+  },
+  home: {
+    heroPrimaryCta: "احجزي موعداً",
+    heroPrimaryHref: "/contact",
+    heroSecondaryCta: "تعرّفي أكثر",
+    heroSecondaryHref: "/about",
+    heroNotes: ["خصوصية واحترام", "موعد بالتنسيق المسبق"],
+    heroCardText: "مساحة تبدأ من الإصغاء الجيد.",
+    welcome: {
+      eyebrow: "من هنا نبدأ",
+      title: "",
+      description: "",
+      ctaLabel: "",
+      ctaHref: "",
+      visible: true,
+    },
+    services: {
+      eyebrow: "كيف يمكنني مرافقتك؟",
+      title: "خدمات تُصغي لما تحتاجينه.",
+      description: "",
+      ctaLabel: "استكشفي الخدمات",
+      ctaHref: "/services",
+      visible: true,
+    },
+    about: {
+      eyebrow: "عن كوثر",
+      title: "",
+      description: "",
+      ctaLabel: "تعرّفي إلى منهج العمل",
+      ctaHref: "/about",
+      visible: true,
+    },
+    articles: {
+      eyebrow: "مساحة للمعرفة",
+      title: "قراءات صغيرة لرفقة يومك.",
+      description: "",
+      ctaLabel: "كل المقالات",
+      ctaHref: "/articles",
+      visible: true,
+    },
+    testimonials: {
+      eyebrow: "كلمات وصلتنا",
+      title: "",
+      description: "",
+      ctaLabel: "",
+      ctaHref: "",
+      visible: true,
+    },
+    cta: {
+      eyebrow: "خطوة أولى",
+      title: "لنرتّب بدايةً مريحة للحوار.",
+      description: "",
+      ctaLabel: "انتقلي إلى الحجز",
+      ctaHref: "/contact",
+      visible: true,
+    },
+    ctaText: "أرسلي طلبك في الوقت الذي يناسبك، وسنتواصل معك لتأكيد التفاصيل المناسبة.",
+  },
+  about: {
+    lead: {
+      eyebrow: "من أنا",
+      title: "حضور مهني يبدأ باحترام قصتك.",
+      description: "",
+      ctaLabel: "",
+      ctaHref: "",
+      visible: true,
+    },
+    sealText: "خصوصيتك ومساحتك في صميم الحوار.",
+    storyEyebrow: "المسار المهني",
+    storyExtraText:
+      "تقوم المرافقة على الإصغاء المتأني لما تقولينه، وعلى البحث معاً عن لغة أوضح لما تمرين به وخطوات قابلة للتجربة في واقعك.",
+    imageCaption: "مكان يتيح التوقف والإصغاء.",
+    principles: {
+      eyebrow: "فلسفة العمل",
+      title: "",
+      description: "",
+      ctaLabel: "",
+      ctaHref: "",
+      visible: true,
+    },
+    cta: {
+      eyebrow: "هل نبدأ؟",
+      title: "خطوة هادئة نحو ما يهمك الآن.",
+      description: "",
+      ctaLabel: "التواصل والحجز",
+      ctaHref: "/contact",
+      visible: true,
+    },
+    ctaText: "يمكنك إرسال طلب موعد أو سؤال عام عبر صفحة التواصل.",
+  },
+  services: {
+    lead: {
+      eyebrow: "الخدمات",
+      title: "مسارات تُصمّم حول ما تحتاجينه.",
+      description:
+        "تعرّفي إلى المساحات المتاحة، ثم اختاري بداية الحوار التي تقترب أكثر من سؤالك اليوم.",
+      ctaLabel: "",
+      ctaHref: "",
+      visible: true,
+    },
+    asideNote: "تُحدَّد تفاصيل الموعد بعد التواصل المبدئي.",
+    guidance: {
+      eyebrow: "أي خدمة تناسبك؟",
+      title: "ليس ضرورياً أن تعرفي كل الإجابات قبل الموعد.",
+      description: "",
+      ctaLabel: "أرسلي طلبك",
+      ctaHref: "/contact",
+      visible: true,
+    },
+    guidanceText:
+      "اكتبي في طلب الحجز ما ترغبين في مناقشته باختصار. نساعدك في تحديد نقطة البداية المناسبة، مع الحفاظ على خصوصية ما تشاركينه.",
+  },
+  articles: {
+    lead: {
+      eyebrow: "المقالات",
+      title: "قراءات ترافقك في اليوم العادي.",
+      description:
+        "محتوى توعوي بسيط يفتح أسئلة صغيرة حول العناية النفسية والعلاقات والتوازن اليومي.",
+      ctaLabel: "",
+      ctaHref: "",
+      visible: true,
+    },
+    endNote: "هذا المحتوى توعوي عام ولا يُعد تشخيصاً أو بديلاً عن استشارة مختصة.",
+    backLabel: "كل المقالات",
+    emptyText: "لا توجد مقالات منشورة حالياً.",
+  },
+  contact: {
+    lead: {
+      eyebrow: "التواصل والحجز",
+      title: "اختاري وقتاً مناسباً، ولنرتّب بداية مريحة.",
+      description:
+        "أرسلي طلبك من خلال النموذج. تُستخدم المعلومات التي تكتبينها للتواصل الأولي وترتيب الموعد فقط.",
+      ctaLabel: "",
+      ctaHref: "",
+      visible: true,
+    },
+    introEyebrow: "خطوة أولى",
+    introTitle: "قدّمي نفسك بالطريقة التي تريحك.",
+    introText:
+      "لا تحتاجين إلى شرح كل شيء في الرسالة الأولى. يكفي أن تكتبي ما يناسبك الآن، ونرتّب الخطوة التالية بهدوء.",
+    privacyNote:
+      "لن تُستخدم بياناتك في رسائل تسويقية، ويُتعامل معها وفق قواعد الخصوصية المهنية.",
+    formTitle: "طلب موعد",
+    formNote: "الحقول المعلّمة مطلوبة.",
+    submitLabel: "إرسال طلب الموعد",
+    successTitle: "وصل طلبك، شكراً لك.",
+    successText: "سيتم التواصل معك لتأكيد التفاصيل المناسبة. يمكنك إرسال طلب آخر عند الحاجة.",
+    successAgainLabel: "إرسال طلب جديد",
+    labelName: "الاسم الكامل",
+    labelEmail: "البريد الإلكتروني",
+    labelPhone: "رقم الهاتف",
+    labelService: "الخدمة الأقرب لاحتياجك",
+    labelTime: "وقت تفضلينه للتواصل أو الموعد",
+    labelMessage: "كيف يمكنني مساعدتك؟",
+  },
+  notFound: {
+    eyebrow: "404",
+    title: "هذه الصفحة ليست هنا.",
+    description: "قد يكون الرابط تغيّر، لكن الوصول إلى المساحة التي تحتاجينها ما زال قريباً.",
+    ctaLabel: "العودة إلى الرئيسية",
+  },
+  footer: {
+    tagline: "مساحة مهنية هادئة للإصغاء، الفهم، وبناء خطوات أكثر اتساقاً مع ما تحتاجينه.",
+    quickLinksLabel: "روابط سريعة",
+    contactLabel: "للتواصل",
+    contactEmptyNote: "يمكنك إرسال طلب الموعد عبر النموذج المخصص.",
+    adminLinkLabel: "دخول لوحة الإدارة",
+    showAdminLink: true,
+    copyright: "جميع الحقوق محفوظة.",
+    disclaimer: "الصحة النفسية رحلة شخصية، والمحتوى التوعوي لا يغني عن الاستشارة المختصة.",
+  },
+};
+
+export const defaultPrinciples: Principle[] = [
+  {
+    id: "listening",
+    title: "إنصات بلا أحكام",
+    text: "تجربة تُؤخذ على محمل الجد من دون اختزالها أو استعجال تفسيرها.",
+    icon: "Heart",
+    position: 1,
+  },
+  {
+    id: "steps",
+    title: "خطوات تناسب واقعك",
+    text: "التركيز على ما يمكن ملاحظته وتغييره بالوتيرة المناسبة لك.",
+    icon: "CheckCircle2",
+    position: 2,
+  },
+  {
+    id: "boundaries",
+    title: "حدود مهنية واضحة",
+    text: "إطار منظم يحمي المساحة ويجعل الحوار أكثر أمناً ووضوحاً.",
+    icon: "ShieldCheck",
+    position: 3,
+  },
+];
 
 export const defaultServices: Service[] = [
   {
@@ -57,7 +316,7 @@ export const defaultServices: Service[] = [
     title: "جلسات فردية",
     shortDescription: "مساحة شخصية لفهم ما يثقل يومك واستكشاف ما يعينك.",
     description:
-      "حوار فردي هادئ يُصمَّم وفق ما تودّين التوقف عنده، من التوتر اليومي إلى التحولات الشخصية والعلاقات.",
+      "حوار فردي هادئ يُصمَّم وفق ما تودّين التوقف عنده، من التوتر اليومي إلى التحولات الشخصية والعلاقات.",
     icon: "Sparkles",
     position: 1,
   },

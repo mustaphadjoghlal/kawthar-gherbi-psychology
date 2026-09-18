@@ -1,15 +1,34 @@
 /**
- * Design system: «ملاذ هادئ» — طبقة محتوى مرنة تجعل كل نص وصورة قابلين للإدارة من مكان واحد.
+ * Design system: «ملاذ هادئ» — طبقة محتوى مرنة تجعل كل نص وصورة ولون قابلين للإدارة من مكان واحد.
  */
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, setDoc } from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { firestoreDb, firebaseStorage, isFirebaseConfigured } from "@/lib/firebase";
-import { defaultArticles, defaultServices, defaultSiteInfo } from "../lib/default-content";
-import type { Article, BookingRequest, Service, SiteInfo, Testimonial } from "@/types/site";
+import {
+  defaultArticles,
+  defaultNavLinks,
+  defaultPrinciples,
+  defaultServices,
+  defaultSiteCopy,
+  defaultSiteInfo,
+} from "../lib/default-content";
+import type {
+  Article,
+  BookingRequest,
+  NavLink,
+  Principle,
+  Service,
+  SiteCopy,
+  SiteInfo,
+  Testimonial,
+} from "@/types/site";
 
 type SiteContentContextValue = {
   siteInfo: SiteInfo;
+  copy: SiteCopy;
+  navLinks: NavLink[];
+  principles: Principle[];
   services: Service[];
   articles: Article[];
   testimonials: Testimonial[];
@@ -17,6 +36,11 @@ type SiteContentContextValue = {
   isLoading: boolean;
   isFirebaseConfigured: boolean;
   saveSiteInfo: (data: SiteInfo) => Promise<void>;
+  saveCopy: (data: SiteCopy) => Promise<void>;
+  saveNavLink: (data: Omit<NavLink, "id"> & { id?: string }) => Promise<void>;
+  deleteNavLink: (id: string) => Promise<void>;
+  savePrinciple: (data: Omit<Principle, "id"> & { id?: string }) => Promise<void>;
+  deletePrinciple: (id: string) => Promise<void>;
   saveService: (data: Omit<Service, "id"> & { id?: string }) => Promise<void>;
   deleteService: (id: string) => Promise<void>;
   saveArticle: (data: Omit<Article, "id"> & { id?: string }) => Promise<void>;
@@ -24,54 +48,165 @@ type SiteContentContextValue = {
   saveTestimonial: (data: Omit<Testimonial, "id"> & { id?: string }) => Promise<void>;
   deleteTestimonial: (id: string) => Promise<void>;
   createBooking: (data: Omit<BookingRequest, "id" | "createdAt">) => Promise<void>;
-  uploadImage: (file: File) => Promise<string>;
+  deleteBooking: (id: string) => Promise<void>;
+  uploadImage: (file: File, onProgress?: (percent: number) => void) => Promise<string>;
   seedContent: () => Promise<void>;
 };
 
 const SiteContentContext = createContext<SiteContentContextValue | null>(null);
 
-const sortByPosition = <T extends { position: number }>(items: T[]) => [...items].sort((a, b) => a.position - b.position);
-const resolveSiteInfo = (data: Partial<SiteInfo>): SiteInfo => ({ ...defaultSiteInfo, ...data, theme: { ...defaultSiteInfo.theme, ...data.theme } });
+const CACHE_KEY = "kawthar_site_content";
+const CACHE_TTL = 1000 * 60 * 60 * 12;
+
+type CachedShape = {
+  siteInfo: SiteInfo;
+  copy: SiteCopy;
+  navLinks: NavLink[];
+  principles: Principle[];
+  services: Service[];
+  articles: Article[];
+  testimonials: Testimonial[];
+};
+
+const sortByPosition = <T extends { position: number }>(items: T[]) =>
+  [...items].sort((a, b) => a.position - b.position);
+
+const isPlainObject = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+/** يدمج القيم المحفوظة فوق القيم الافتراضية، فيبقى كل حقل جديد يعمل مع المستندات القديمة. */
+function mergeDeep<T>(base: T, override: unknown): T {
+  if (!isPlainObject(override)) return base;
+  if (!isPlainObject(base)) return (override as T) ?? base;
+  const result: Record<string, unknown> = { ...(base as Record<string, unknown>) };
+  Object.entries(override).forEach(([key, value]) => {
+    if (value === undefined || value === null) return;
+    const baseValue = (base as Record<string, unknown>)[key];
+    result[key] = isPlainObject(baseValue) ? mergeDeep(baseValue, value) : value;
+  });
+  return result as T;
+}
+
+const resolveSiteInfo = (data: Partial<SiteInfo>): SiteInfo => mergeDeep(defaultSiteInfo, data);
+const resolveCopy = (data: Partial<SiteCopy>): SiteCopy => mergeDeep(defaultSiteCopy, data);
+
 const toRgba = (hex: string, alpha: number) => {
   const value = hex.replace("#", "");
   const normalized = value.length === 3 ? value.split("").map((item) => item + item).join("") : value;
   const numeric = Number.parseInt(normalized, 16);
+  if (Number.isNaN(numeric)) return `rgba(0, 0, 0, ${alpha})`;
   return `rgba(${(numeric >> 16) & 255}, ${(numeric >> 8) & 255}, ${numeric & 255}, ${alpha})`;
 };
 
+function readCache(): Partial<CachedShape> | null {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const { data, timestamp } = JSON.parse(raw) as { data: Partial<CachedShape>; timestamp: number };
+    if (Date.now() - timestamp > CACHE_TTL) return null;
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+function writeCache(data: Partial<CachedShape>) {
+  try {
+    const previous = readCache() ?? {};
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ data: { ...previous, ...data }, timestamp: Date.now() }));
+  } catch {
+    /* التخزين المحلي قد يكون معطلاً — لا يؤثر على عمل الموقع. */
+  }
+}
+
+/** يحمّل خطوط Google المختارة مرة واحدة لكل عائلة خط. */
+function useGoogleFonts(families: string[]) {
+  useEffect(() => {
+    const unique = Array.from(new Set(families.filter(Boolean)));
+    unique.forEach((family) => {
+      const id = `font-${family.replace(/\s+/g, "-").toLowerCase()}`;
+      if (document.getElementById(id)) return;
+      const link = document.createElement("link");
+      link.id = id;
+      link.rel = "stylesheet";
+      link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family).replace(/%20/g, "+")}:wght@300;400;500;600;700&display=swap`;
+      document.head.appendChild(link);
+    });
+  }, [families.join("|")]);
+}
+
 export function SiteContentProvider({ children }: { children: React.ReactNode }) {
-  const [siteInfo, setSiteInfo] = useState<SiteInfo>(defaultSiteInfo);
-  const [services, setServices] = useState<Service[]>(defaultServices);
-  const [articles, setArticles] = useState<Article[]>(defaultArticles);
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const cached = useMemo(() => readCache(), []);
+  const [siteInfo, setSiteInfo] = useState<SiteInfo>(
+    cached?.siteInfo ? resolveSiteInfo(cached.siteInfo) : defaultSiteInfo,
+  );
+  const [copy, setCopy] = useState<SiteCopy>(cached?.copy ? resolveCopy(cached.copy) : defaultSiteCopy);
+  const [navLinks, setNavLinks] = useState<NavLink[]>(cached?.navLinks ?? defaultNavLinks);
+  const [principles, setPrinciples] = useState<Principle[]>(cached?.principles ?? defaultPrinciples);
+  const [services, setServices] = useState<Service[]>(cached?.services ?? defaultServices);
+  const [articles, setArticles] = useState<Article[]>(cached?.articles ?? defaultArticles);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>(cached?.testimonials ?? []);
   const [bookings, setBookings] = useState<BookingRequest[]>([]);
-  const [isLoading, setIsLoading] = useState(isFirebaseConfigured);
+  const [isLoading, setIsLoading] = useState(isFirebaseConfigured && !cached);
 
   useEffect(() => {
     if (!firestoreDb) return;
+    const db = firestoreDb;
     const unsubscribers = [
-      onSnapshot(doc(firestoreDb, "siteInfo", "profile"), (snapshot) => {
-        if (snapshot.exists()) setSiteInfo(resolveSiteInfo(snapshot.data() as Partial<SiteInfo>));
+      onSnapshot(doc(db, "siteInfo", "profile"), (snapshot) => {
+        if (snapshot.exists()) {
+          const next = resolveSiteInfo(snapshot.data() as Partial<SiteInfo>);
+          setSiteInfo(next);
+          writeCache({ siteInfo: next });
+        }
         setIsLoading(false);
       }),
-      onSnapshot(query(collection(firestoreDb, "services"), orderBy("position")), (snapshot) => {
-        if (!snapshot.empty) setServices(sortByPosition(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as Service)));
+      onSnapshot(doc(db, "siteContent", "copy"), (snapshot) => {
+        if (!snapshot.exists()) return;
+        const next = resolveCopy(snapshot.data() as Partial<SiteCopy>);
+        setCopy(next);
+        writeCache({ copy: next });
       }),
-      onSnapshot(query(collection(firestoreDb, "articles"), orderBy("position")), (snapshot) => {
-        if (!snapshot.empty) setArticles(sortByPosition(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as Article)));
+      onSnapshot(query(collection(db, "navLinks"), orderBy("position")), (snapshot) => {
+        if (snapshot.empty) return;
+        const next = sortByPosition(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as NavLink));
+        setNavLinks(next);
+        writeCache({ navLinks: next });
       }),
-      onSnapshot(query(collection(firestoreDb, "testimonials"), orderBy("position")), (snapshot) => {
-        setTestimonials(sortByPosition(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as Testimonial)));
+      onSnapshot(query(collection(db, "principles"), orderBy("position")), (snapshot) => {
+        if (snapshot.empty) return;
+        const next = sortByPosition(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as Principle));
+        setPrinciples(next);
+        writeCache({ principles: next });
       }),
-      onSnapshot(query(collection(firestoreDb, "bookingRequests"), orderBy("createdAt", "desc")), (snapshot) => {
+      onSnapshot(query(collection(db, "services"), orderBy("position")), (snapshot) => {
+        if (snapshot.empty) return;
+        const next = sortByPosition(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as Service));
+        setServices(next);
+        writeCache({ services: next });
+      }),
+      onSnapshot(query(collection(db, "articles"), orderBy("position")), (snapshot) => {
+        if (snapshot.empty) return;
+        const next = sortByPosition(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as Article));
+        setArticles(next);
+        writeCache({ articles: next });
+      }),
+      onSnapshot(query(collection(db, "testimonials"), orderBy("position")), (snapshot) => {
+        const next = sortByPosition(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as Testimonial));
+        setTestimonials(next);
+        writeCache({ testimonials: next });
+      }),
+      onSnapshot(query(collection(db, "bookingRequests"), orderBy("createdAt", "desc")), (snapshot) => {
         setBookings(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as BookingRequest));
       }),
     ];
     return () => unsubscribers.forEach((unsubscribe) => unsubscribe());
   }, []);
 
+  const theme = useMemo(() => ({ ...defaultSiteInfo.theme, ...siteInfo.theme }), [siteInfo.theme]);
+  useGoogleFonts([theme.displayFont, theme.bodyFont]);
+
   useEffect(() => {
-    const theme = { ...defaultSiteInfo.theme, ...siteInfo.theme };
     const root = document.documentElement;
     const values: Record<string, string> = {
       "--ink": theme.ink,
@@ -100,60 +235,89 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
       "--border": toRgba(theme.primaryDeep, 0.15),
       "--input": toRgba(theme.primaryDeep, 0.2),
       "--ring": theme.primary,
+      "--font-display": `"${theme.displayFont}"`,
+      "--font-body": `"${theme.bodyFont}"`,
+      "--radius": `${theme.radius}rem`,
+      "--base-font-size": `${theme.baseFontSize}px`,
     };
     Object.entries(values).forEach(([property, value]) => root.style.setProperty(property, value));
-  }, [siteInfo.theme]);
+  }, [theme]);
+
+  useEffect(() => {
+    document.title = siteInfo.metaTitle || `${siteInfo.name} | ${siteInfo.role}`;
+    const description = document.querySelector('meta[name="description"]');
+    if (description) description.setAttribute("content", siteInfo.metaDescription);
+    const themeColor = document.querySelector('meta[name="theme-color"]');
+    if (themeColor) themeColor.setAttribute("content", theme.primary);
+  }, [siteInfo.metaTitle, siteInfo.metaDescription, siteInfo.name, siteInfo.role, theme.primary]);
 
   const ensureDb = () => {
     if (!firestoreDb) throw new Error("لم تُضف إعدادات Firebase بعد.");
     return firestoreDb;
   };
 
+  /** يحفظ مستنداً في مجموعة، وينشئه إن لم يكن له معرّف. */
+  const saveIn = async <T extends { id?: string }>(collectionName: string, data: T) => {
+    const db = ensureDb();
+    const { id, ...payload } = data;
+    if (id) await setDoc(doc(db, collectionName, id), payload, { merge: true });
+    else await addDoc(collection(db, collectionName), payload);
+  };
+
   const saveSiteInfo = async (data: SiteInfo) => {
-    const db = ensureDb();
-    await setDoc(doc(db, "siteInfo", "profile"), data, { merge: true });
+    await setDoc(doc(ensureDb(), "siteInfo", "profile"), data, { merge: true });
   };
-  const saveService = async (data: Omit<Service, "id"> & { id?: string }) => {
-    const db = ensureDb();
-    const { id, ...payload } = data;
-    if (id) await setDoc(doc(db, "services", id), payload, { merge: true });
-    else await addDoc(collection(db, "services"), payload);
+  const saveCopy = async (data: SiteCopy) => {
+    await setDoc(doc(ensureDb(), "siteContent", "copy"), data, { merge: true });
   };
+  const saveNavLink = (data: Omit<NavLink, "id"> & { id?: string }) => saveIn("navLinks", data);
+  const deleteNavLink = async (id: string) => deleteDoc(doc(ensureDb(), "navLinks", id));
+  const savePrinciple = (data: Omit<Principle, "id"> & { id?: string }) => saveIn("principles", data);
+  const deletePrinciple = async (id: string) => deleteDoc(doc(ensureDb(), "principles", id));
+  const saveService = (data: Omit<Service, "id"> & { id?: string }) => saveIn("services", data);
   const deleteService = async (id: string) => deleteDoc(doc(ensureDb(), "services", id));
-  const saveArticle = async (data: Omit<Article, "id"> & { id?: string }) => {
-    const db = ensureDb();
-    const { id, ...payload } = data;
-    if (id) await setDoc(doc(db, "articles", id), payload, { merge: true });
-    else await addDoc(collection(db, "articles"), payload);
-  };
+  const saveArticle = (data: Omit<Article, "id"> & { id?: string }) => saveIn("articles", data);
   const deleteArticle = async (id: string) => deleteDoc(doc(ensureDb(), "articles", id));
-  const saveTestimonial = async (data: Omit<Testimonial, "id"> & { id?: string }) => {
-    const db = ensureDb();
-    const { id, ...payload } = data;
-    if (id) await setDoc(doc(db, "testimonials", id), payload, { merge: true });
-    else await addDoc(collection(db, "testimonials"), payload);
-  };
+  const saveTestimonial = (data: Omit<Testimonial, "id"> & { id?: string }) => saveIn("testimonials", data);
   const deleteTestimonial = async (id: string) => deleteDoc(doc(ensureDb(), "testimonials", id));
   const createBooking = async (data: Omit<BookingRequest, "id" | "createdAt">) => {
     await addDoc(collection(ensureDb(), "bookingRequests"), { ...data, createdAt: new Date().toISOString() });
   };
-  const uploadImage = async (file: File) => {
+  const deleteBooking = async (id: string) => deleteDoc(doc(ensureDb(), "bookingRequests", id));
+
+  const uploadImage = async (file: File, onProgress?: (percent: number) => void) => {
     if (!firebaseStorage) throw new Error("لم تُضف إعدادات Firebase Storage بعد.");
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
     const storageRef = ref(firebaseStorage, `site-assets/${Date.now()}-${safeName}`);
-    await uploadBytes(storageRef, file);
-    return getDownloadURL(storageRef);
+    const task = uploadBytesResumable(storageRef, file);
+    return new Promise<string>((resolve, reject) => {
+      task.on(
+        "state_changed",
+        (snapshot) => onProgress?.(Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100)),
+        reject,
+        async () => resolve(await getDownloadURL(task.snapshot.ref)),
+      );
+    });
   };
+
   const seedContent = async () => {
     const db = ensureDb();
     await setDoc(doc(db, "siteInfo", "profile"), defaultSiteInfo);
-    await Promise.all(defaultServices.map(({ id, ...item }) => setDoc(doc(db, "services", id), item)));
-    await Promise.all(defaultArticles.map(({ id, ...item }) => setDoc(doc(db, "articles", id), item)));
+    await setDoc(doc(db, "siteContent", "copy"), defaultSiteCopy);
+    await Promise.all([
+      ...defaultNavLinks.map(({ id, ...item }) => setDoc(doc(db, "navLinks", id), item)),
+      ...defaultPrinciples.map(({ id, ...item }) => setDoc(doc(db, "principles", id), item)),
+      ...defaultServices.map(({ id, ...item }) => setDoc(doc(db, "services", id), item)),
+      ...defaultArticles.map(({ id, ...item }) => setDoc(doc(db, "articles", id), item)),
+    ]);
   };
 
   const value = useMemo(
     () => ({
       siteInfo,
+      copy,
+      navLinks,
+      principles,
       services,
       articles,
       testimonials,
@@ -161,6 +325,11 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
       isLoading,
       isFirebaseConfigured,
       saveSiteInfo,
+      saveCopy,
+      saveNavLink,
+      deleteNavLink,
+      savePrinciple,
+      deletePrinciple,
       saveService,
       deleteService,
       saveArticle,
@@ -168,10 +337,11 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
       saveTestimonial,
       deleteTestimonial,
       createBooking,
+      deleteBooking,
       uploadImage,
       seedContent,
     }),
-    [siteInfo, services, articles, testimonials, bookings, isLoading],
+    [siteInfo, copy, navLinks, principles, services, articles, testimonials, bookings, isLoading],
   );
 
   return <SiteContentContext.Provider value={value}>{children}</SiteContentContext.Provider>;

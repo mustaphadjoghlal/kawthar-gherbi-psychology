@@ -11,6 +11,21 @@ service cloud.firestore {
       allow write: if signedIn();
     }
 
+    match /siteContent/{documentId} {
+      allow read: if true;
+      allow write: if signedIn();
+    }
+
+    match /navLinks/{documentId} {
+      allow read: if true;
+      allow write: if signedIn();
+    }
+
+    match /principles/{documentId} {
+      allow read: if true;
+      allow write: if signedIn();
+    }
+
     match /services/{documentId} {
       allow read: if true;
       allow write: if signedIn();

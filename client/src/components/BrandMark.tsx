@@ -1,8 +1,16 @@
 /**
- * Design system: «ملاذ هادئ» — رمز احتواء نباتي ظاهر وواثق، لا شعار نصياً افتراضياً.
+ * Design system: «ملاذ هادئ» — رمز احتواء نباتي ظاهر وواثق، قابل للاستبدال من لوحة الإدارة.
  */
+import { useSiteContent } from "@/contexts/SiteContentContext";
 import { ASSETS } from "../lib/default-content";
 
 export function BrandMark({ className = "" }: { className?: string }) {
-  return <img src={ASSETS.mark} alt="رمز كوثر غربي" className={`brand-mark ${className}`} />;
+  const { siteInfo } = useSiteContent();
+  return (
+    <img
+      src={siteInfo.logo || ASSETS.mark}
+      alt={`رمز ${siteInfo.name}`}
+      className={`brand-mark ${className}`}
+    />
+  );
 }

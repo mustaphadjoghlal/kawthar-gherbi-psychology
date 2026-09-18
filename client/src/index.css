@@ -45,7 +45,9 @@
   --mist: #edf4f8;
   --line: rgba(14, 42, 67, 0.15);
   --footer: #112c45;
-  --font-display: "Noto Naskh Arabic";
+  --font-display: "Aref Ruqaa Ink";
+  --font-body: "IBM Plex Sans Arabic";
+  --base-font-size: 16px;
   --background: var(--ivory);
   --foreground: var(--ink);
   --card: var(--paper);
@@ -70,7 +72,7 @@
 
 * { border-color: var(--line); }
 html { scroll-behavior: smooth; }
-body { margin: 0; min-width: 320px; background: var(--ivory); color: var(--ink); font-family: "IBM Plex Sans Arabic", sans-serif; font-size: 16px; line-height: 1.8; }
+body { margin: 0; min-width: 320px; background: var(--ivory); color: var(--ink); font-family: var(--font-body), sans-serif; font-size: var(--base-font-size); line-height: 1.8; }
 body::selection { background: var(--sage-soft); color: var(--sage-deep); }
 button, input, textarea, select { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
@@ -421,6 +423,96 @@ h1, h2, h3 { text-wrap: balance; }
 .brand-lockup strong, .hero-copy h1, .hero-card, .welcome-grid h2, .section-heading h2, .about-band h2, .contact-cta-section h2, .page-lead h1, .about-story-copy h2, .guidance-grid h2, .contact-details h2, .service-preview h3, .article-card h3, .testimonial-grid blockquote, .row-title h2, .article-list-body h2, .article-detail h1, .article-prose h2, .admin-brand-symbol, .admin-sidebar-brand strong, .admin-topbar h1, .admin-panel-heading h2, .inline-editor-heading h3, .admin-stat strong, .booking-row h3, .admin-login-card h1, .admin-setup-card h1, .success-state h2, .form-heading span, .not-found-inline h1 { font-family: var(--font-display), serif; }
 @keyframes breathe { 50% { transform: rotate(45deg) scale(.86); opacity: .55; } }
 
+/* ============================================================
+   استدارة الحواف القابلة للتحرير — تُطبَّق على العناصر التي تحتمل ذلك فقط.
+   ============================================================ */
+.button-primary, .button-quiet, .button-sm, .arrow-disc,
+.booking-form input, .booking-form textarea, .booking-form select,
+.admin-field input, .admin-field textarea, .admin-field select,
+.admin-panel, .admin-login-card, .admin-setup-card, .inline-editor,
+.service-preview, .article-image, .article-list-image, .lead-seal, .lead-note,
+.theme-live-preview, .theme-color-field, .admin-stat, .admin-block { border-radius: var(--radius); }
+.arrow-disc { border-radius: 999px; }
+
+/* النصوص المكتوبة من لوحة الإدارة قد تحتوي أسطراً جديدة — نحترمها كما كُتبت. */
+.hero-card strong, .lead-seal span, .lead-note span, .theme-preview-chip { white-space: pre-line; }
+
+.principle-grid .principle-icon { width: 25px; height: 25px; color: var(--clay); }
+.articles-empty { padding: 3rem 0; color: #78857b; font-size: .95rem; }
+
+/* ============================================================
+   عناصر لوحة الإدارة الموسّعة
+   ============================================================ */
+.admin-nav-group { display: grid; gap: .1rem; margin-bottom: .9rem; }
+.admin-nav-group > p { padding: .5rem .6rem .2rem; color: #8fa494; font-size: .62rem; font-weight: 700; letter-spacing: .06em; }
+.admin-footnote { margin-top: 1.2rem; color: #7d8a80; font-size: .73rem; line-height: 1.8; }
+
+.admin-block { margin-top: 1.5rem; padding: 1.25rem; border: 1px solid var(--line); background: color-mix(in srgb, var(--paper) 70%, var(--ivory)); }
+.admin-block-heading { display: grid; gap: .2rem; margin-top: .4rem; }
+.admin-block-heading:not(:first-child) { margin-top: 1.9rem; padding-top: 1.2rem; border-top: 1px solid var(--line); }
+.admin-block-heading h3 { color: var(--sage-deep); font-family: var(--font-display), serif; font-size: 1.3rem; }
+.admin-block-heading p { color: #7d8a80; font-size: .76rem; line-height: 1.7; }
+.admin-block > .button-primary { margin-top: .5rem; }
+.section-fields { display: grid; }
+.section-fields .admin-form-grid { margin-bottom: .85rem; }
+
+.field-hint { display: block; margin-top: .15rem; color: #8b978c; font-size: .66rem; font-weight: 500; line-height: 1.6; }
+
+.visibility-toggle { display: inline-flex; align-items: center; gap: .45rem; width: max-content; min-height: 38px; padding: .4rem .75rem; border: 1px solid var(--line); border-radius: var(--radius); background: transparent; color: var(--sage-deep); font-size: .74rem; font-weight: 700; transition: border-color 160ms ease, background 160ms ease, color 160ms ease; }
+.visibility-toggle.on { border-color: var(--sage); background: var(--sage-soft); }
+.visibility-toggle.off { border-color: var(--clay); background: color-mix(in srgb, var(--clay) 12%, transparent); color: #8c4039; }
+.hidden-flag { display: inline-block; margin-right: .5rem; padding: .1rem .4rem; border-radius: var(--radius); background: color-mix(in srgb, var(--clay) 18%, transparent); color: #8c4039; font-size: .62rem; font-weight: 700; }
+
+.admin-range-field { display: grid; gap: .5rem; min-height: 84px; align-content: center; padding: .8rem .9rem; border: 1px solid var(--line); border-radius: var(--radius); background: color-mix(in srgb, var(--paper) 82%, var(--ivory)); }
+.admin-range-field > span:first-child { display: grid; gap: .12rem; }
+.admin-range-field strong { color: var(--sage-deep); font-size: .79rem; }
+.admin-range-field small { color: #7a867c; font-size: .66rem; line-height: 1.55; }
+.range-control { display: flex; align-items: center; gap: .6rem; }
+.range-control input { flex: 1; accent-color: var(--sage); }
+.range-control code { color: #69766d; direction: ltr; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .66rem; }
+.theme-color-list > .admin-form-grid { grid-column: 1 / -1; margin: 0; }
+
+.order-controls { display: grid; gap: .2rem; }
+.order-controls button { width: 28px; height: 22px; border: 1px solid var(--line); border-radius: var(--radius); background: transparent; color: var(--sage-deep); font-size: .7rem; line-height: 1; }
+.order-controls button:hover:not(:disabled) { border-color: var(--sage); background: var(--sage-soft); }
+.order-controls button:disabled { opacity: .35; cursor: not-allowed; }
+
+.upload-progress { grid-column: 1 / -1; height: 4px; margin-top: .3rem; background: var(--sage-soft); }
+.upload-progress i { display: block; height: 100%; background: var(--sage); transition: width 160ms ease; }
+
+.admin-shortcut-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: .85rem; margin-top: .85rem; }
+.admin-shortcut { display: grid; gap: .25rem; padding: .95rem; border: 1px solid var(--line); border-radius: var(--radius); background: var(--mist); text-align: right; transition: border-color 160ms ease, transform 160ms ease; }
+.admin-shortcut:hover { border-color: var(--sage); transform: translateY(-2px); }
+.admin-shortcut strong { color: var(--sage-deep); font-size: .84rem; }
+.admin-shortcut small { color: #7d8a80; font-size: .7rem; line-height: 1.6; }
+
+.booking-delete { align-self: start; justify-self: start; display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid var(--line); border-radius: var(--radius); background: transparent; color: var(--sage-deep); }
+.booking-delete:hover { border-color: var(--clay); color: var(--clay); }
+
+.rich-editor { border: 1px solid rgba(51,72,60,.2); border-radius: var(--radius); background: rgba(255,253,249,.82); }
+.rich-editor-toolbar { display: flex; flex-wrap: wrap; gap: .2rem; padding: .4rem; border-bottom: 1px solid var(--line); }
+.rich-editor-toolbar button { display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid transparent; border-radius: var(--radius); background: transparent; color: var(--sage-deep); }
+.rich-editor-toolbar button:hover { border-color: var(--line); background: var(--sage-soft); }
+.rich-editor-surface { min-height: 260px; max-height: 520px; overflow-y: auto; padding: .9rem; color: var(--sage-deep); font-size: .9rem; font-weight: 400; line-height: 1.95; outline: none; }
+.rich-editor-surface:focus { box-shadow: inset 0 0 0 2px rgba(78,106,90,.12); }
+.rich-editor-surface h2 { margin: 1.1rem 0 .4rem; font-family: var(--font-display), serif; font-size: 1.4rem; }
+.rich-editor-surface h3 { margin: .9rem 0 .35rem; font-family: var(--font-display), serif; font-size: 1.15rem; }
+.rich-editor-surface p { margin: .55rem 0; }
+.rich-editor-surface ul, .rich-editor-surface ol { margin: .55rem 1.3rem; list-style: revert; }
+.rich-editor-surface blockquote { margin: .7rem 0; padding-right: .9rem; border-right: 3px solid var(--clay); color: #63706a; }
+.rich-editor-surface a { color: var(--sage); text-decoration: underline; }
+.rich-editor-surface hr { margin: 1rem 0; border: 0; border-top: 1px solid var(--line); }
+
+/* المحتوى الغني كما يظهر للزائر داخل المقال. */
+.article-prose ul, .article-prose ol { margin: 1rem 1.5rem; list-style: revert; }
+.article-prose li { margin: .35rem 0; line-height: 2; }
+.article-prose blockquote { margin: 1.3rem 0; padding-right: 1.1rem; border-right: 3px solid var(--clay); color: #63706a; font-size: 1.05rem; }
+.article-prose h3 { margin-top: 1.7rem; color: var(--sage-deep); font-family: var(--font-display), serif; font-size: 1.5rem; }
+.article-prose a { color: var(--sage); text-decoration: underline; }
+.article-prose strong { color: var(--sage-deep); }
+.article-prose hr { margin: 1.8rem 0; border: 0; border-top: 1px solid var(--line); }
+
+
 @media (max-width: 1000px) {
   .hero-grid, .about-story-grid, .contact-grid { grid-template-columns: 1fr; }
   .hero-copy { max-width: 720px; }
@@ -437,6 +529,7 @@ h1, h2, h3 { text-wrap: balance; }
   .admin-page { grid-template-columns: 210px minmax(0,1fr); }
   .admin-stat-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .theme-settings-grid { grid-template-columns: 1fr; }
+  .admin-shortcut-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
 }
 @media (max-width: 720px) {
   .container { padding-inline: 1.1rem; }
@@ -484,6 +577,10 @@ h1, h2, h3 { text-wrap: balance; }
   .admin-panel, .admin-login-card, .admin-setup-card { padding: 1.25rem; }
   .admin-panel-heading, .admin-seed { align-items: flex-start; flex-direction: column; }
   .admin-stat-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .admin-shortcut-grid { grid-template-columns: 1fr; }
+  .theme-color-list { grid-template-columns: 1fr; }
+  .admin-sidebar .admin-nav-group { display: flex; flex: 0 0 auto; margin-bottom: 0; }
+  .admin-sidebar .admin-nav-group > p { display: none; }
   .booking-row { grid-template-columns: 1fr; gap: .6rem; }
   .booking-contact { align-content: start; }
   .booking-contact a { text-align: right; }

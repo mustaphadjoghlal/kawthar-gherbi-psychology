@@ -7,18 +7,12 @@ import { useState } from "react";
 import { BrandMark } from "@/components/BrandMark";
 import { useSiteContent } from "@/contexts/SiteContentContext";
 
-const navLinks = [
-  ["/", "الرئيسية"],
-  ["/about", "من أنا"],
-  ["/services", "الخدمات"],
-  ["/articles", "المقالات"],
-  ["/contact", "التواصل والحجز"],
-] as const;
-
 export function SiteHeader() {
   const [location] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
-  const { siteInfo } = useSiteContent();
+  const { copy, navLinks, siteInfo } = useSiteContent();
+  const links = navLinks.filter((link) => link.visible !== false);
+  const { ctaHref, ctaLabel, showCta } = copy.header;
 
   return (
     <header className="site-header">
@@ -31,15 +25,17 @@ export function SiteHeader() {
           </span>
         </Link>
         <nav className="hidden items-center gap-6 lg:flex" aria-label="التنقل الرئيسي">
-          {navLinks.map(([href, label]) => (
-            <Link key={href} href={href} className={`nav-link ${location === href ? "active" : ""}`}>
-              {label}
+          {links.map((link) => (
+            <Link key={link.id} href={link.href} className={`nav-link ${location === link.href ? "active" : ""}`}>
+              {link.label}
             </Link>
           ))}
         </nav>
-        <div className="hidden lg:block">
-          <Link href="/contact" className="button-primary button-sm">احجزي موعداً</Link>
-        </div>
+        {showCta && (
+          <div className="hidden lg:block">
+            <Link href={ctaHref} className="button-primary button-sm">{ctaLabel}</Link>
+          </div>
+        )}
         <button className="mobile-menu-trigger lg:hidden" onClick={() => setIsOpen((current) => !current)} aria-label="فتح قائمة التنقل">
           {isOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
@@ -47,10 +43,12 @@ export function SiteHeader() {
       {isOpen && (
         <nav className="mobile-menu lg:hidden" aria-label="التنقل على الهاتف">
           <div className="container grid gap-1 pb-5">
-            {navLinks.map(([href, label]) => (
-              <Link key={href} href={href} className="mobile-nav-link" onClick={() => setIsOpen(false)}>{label}</Link>
+            {links.map((link) => (
+              <Link key={link.id} href={link.href} className="mobile-nav-link" onClick={() => setIsOpen(false)}>{link.label}</Link>
             ))}
-            <Link href="/contact" className="button-primary mt-3 justify-center" onClick={() => setIsOpen(false)}>احجزي موعداً</Link>
+            {showCta && (
+              <Link href={ctaHref} className="button-primary mt-3 justify-center" onClick={() => setIsOpen(false)}>{ctaLabel}</Link>
+            )}
           </div>
         </nav>
       )}
