@@ -2,7 +2,7 @@
  * Design system: «ملاذ هادئ» — طبقة محتوى مرنة تجعل كل نص وصورة ولون قابلين للإدارة من مكان واحد.
  */
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, setDoc } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, setDoc, updateDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { firestoreDb, firebaseStorage, isFirebaseConfigured } from "@/lib/firebase";
 import { COLLECTION_PREFIX, STORAGE_FOLDER } from "@/lib/firebase-config";
@@ -17,6 +17,7 @@ import {
 import type {
   Article,
   BookingRequest,
+  BookingStatus,
   NavLink,
   Principle,
   Service,
@@ -48,7 +49,8 @@ type SiteContentContextValue = {
   deleteArticle: (id: string) => Promise<void>;
   saveTestimonial: (data: Omit<Testimonial, "id"> & { id?: string }) => Promise<void>;
   deleteTestimonial: (id: string) => Promise<void>;
-  createBooking: (data: Omit<BookingRequest, "id" | "createdAt">) => Promise<void>;
+  createBooking: (data: Omit<BookingRequest, "id" | "createdAt" | "status">) => Promise<void>;
+  updateBookingStatus: (id: string, status: BookingStatus) => Promise<void>;
   deleteBooking: (id: string) => Promise<void>;
   uploadImage: (file: File, onProgress?: (percent: number) => void) => Promise<string>;
   seedContent: () => Promise<void>;
@@ -317,9 +319,21 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
   const deleteArticle = async (id: string) => deleteDoc(doc(ensureDb(), col("articles"), id));
   const saveTestimonial = (data: Omit<Testimonial, "id"> & { id?: string }) => saveIn("testimonials", data);
   const deleteTestimonial = async (id: string) => deleteDoc(doc(ensureDb(), col("testimonials"), id));
-  const createBooking = async (data: Omit<BookingRequest, "id" | "createdAt">) => {
-    await addDoc(collection(ensureDb(), col("bookingRequests")), { ...data, createdAt: new Date().toISOString() });
+  const createBooking = async (data: Omit<BookingRequest, "id" | "createdAt" | "status">) => {
+    await addDoc(collection(ensureDb(), col("bookingRequests")), {
+      ...data,
+      status: "new",
+      createdAt: new Date().toISOString(),
+    });
+    // الإشعار اختياري: فشله لا يُفشل الطلب، فهو محفوظ في لوحة الإدارة.
+    void fetch("/api/notify-booking", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    }).catch(() => undefined);
   };
+  const updateBookingStatus = async (id: string, status: BookingStatus) =>
+    updateDoc(doc(ensureDb(), col("bookingRequests"), id), { status });
   const deleteBooking = async (id: string) => deleteDoc(doc(ensureDb(), col("bookingRequests"), id));
 
   const uploadImage = async (file: File, onProgress?: (percent: number) => void) => {
@@ -374,6 +388,7 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
       saveTestimonial,
       deleteTestimonial,
       createBooking,
+      updateBookingStatus,
       deleteBooking,
       uploadImage,
       seedContent,

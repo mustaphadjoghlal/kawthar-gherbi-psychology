@@ -206,6 +206,9 @@ export type Testimonial = {
   position: number;
 };
 
+/** حالة متابعة الطلب. الطلبات القديمة بلا حقل حالة تُعامل كأنها «جديد». */
+export type BookingStatus = "new" | "contacted" | "confirmed";
+
 export type BookingRequest = {
   id: string;
   name: string;
@@ -215,4 +218,5 @@ export type BookingRequest = {
   preferredTime: string;
   message: string;
   createdAt: string;
+  status?: BookingStatus;
 };

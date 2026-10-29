@@ -385,6 +385,18 @@ h1, h2, h3 { text-wrap: balance; }
 .booking-contact { display: grid; align-content: center; gap: .25rem; }
 .booking-contact a { color: var(--sage); font-size: .76rem; direction: ltr; text-align: right; }
 .booking-message { align-self: center; line-height: 1.9; }
+.booking-row-new { border-inline-start: 3px solid var(--clay, #c9826b); padding-inline-start: .9rem; }
+.booking-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; grid-column: 1 / -1; }
+.booking-status { display: inline-flex; align-items: center; gap: .5rem; }
+.booking-status select { height: 34px; border: 1px solid var(--line); background: transparent; color: var(--sage-deep); font-size: .74rem; padding: 0 .5rem; }
+.booking-badge { padding: .15rem .6rem; border-radius: 999px; font-size: .68rem; font-weight: 700; }
+.booking-badge-new { background: #f6d9cf; color: #8a3f27; }
+.booking-badge-contacted { background: #e3ebf5; color: #2c4a73; }
+.booking-badge-confirmed { background: var(--sage-soft); color: var(--sage-deep); }
+.booking-reply { display: inline-flex; align-items: center; gap: .35rem; height: 34px; padding: 0 .75rem; border: 1px solid var(--line); border-radius: var(--radius); color: var(--sage-deep); font-size: .74rem; font-weight: 700; }
+.booking-reply:hover { border-color: var(--sage); }
+.booking-actions .booking-delete { margin-inline-start: auto; }
+.nav-count { display: inline-grid; place-items: center; min-width: 20px; height: 20px; margin-inline-start: auto; padding: 0 .35rem; border-radius: 999px; background: #c9826b; color: #fff; font-size: .68rem; font-style: normal; font-weight: 700; }
 .admin-login-page, .admin-loading { display: grid; min-height: 100vh; place-items: center; padding: 1.5rem; background: radial-gradient(circle at 18% 18%, #eef3eb, transparent 28rem), var(--ivory); }
 .admin-login-card, .admin-setup-card { width: min(100%, 450px); padding: clamp(2rem,5vw,3.1rem); border: 1px solid rgba(51,72,60,.14); background: rgba(255,253,249,.93); box-shadow: 0 23px 55px rgba(52,77,63,.12); }
 .admin-setup-card { width: min(100%, 600px); }

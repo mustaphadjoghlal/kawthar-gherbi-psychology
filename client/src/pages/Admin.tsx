@@ -15,7 +15,9 @@ import {
   LayoutDashboard,
   ListTree,
   LogOut,
+  Mail,
   MailCheck,
+  MessageCircle,
   MessageSquareQuote,
   Palette,
   PanelBottom,
@@ -48,6 +50,8 @@ import {
 } from "@/components/admin/AdminControls";
 import type {
   Article,
+  BookingRequest,
+  BookingStatus,
   NavLink,
   Principle,
   SectionCopy,
@@ -905,34 +909,82 @@ function TestimonialsPanel() {
   );
 }
 
+const BOOKING_STATUS_LABELS: Record<BookingStatus, string> = {
+  new: "جديد",
+  contacted: "تم الرد",
+  confirmed: "مؤكد",
+};
+
+const isNewBooking = (booking: BookingRequest) => (booking.status ?? "new") === "new";
+
+/** رقم واتساب بالأرقام فقط: يزيل الرموز ويحوّل البادئة 00 إلى صيغة دولية. */
+const whatsappNumber = (phone: string) => phone.replace(/[^\d]/g, "").replace(/^00/, "");
+
 function BookingsPanel() {
-  const { bookings, deleteBooking } = useSiteContent();
+  const { bookings, deleteBooking, siteInfo, updateBookingStatus } = useSiteContent();
   const remove = async (id: string) => {
     if (!window.confirm("هل تريدين حذف هذا الطلب نهائياً؟")) return;
     try { await deleteBooking(id); toast.success("تم حذف الطلب."); } catch { toast.error("تعذر حذف الطلب."); }
   };
+  const changeStatus = async (id: string, status: BookingStatus) => {
+    try { await updateBookingStatus(id, status); } catch { toast.error("تعذر تحديث حالة الطلب."); }
+  };
+  const replyText = (booking: BookingRequest) =>
+    `مرحباً ${booking.name}، شكراً لتواصلك معنا بخصوص «${booking.preferredService}». استلمنا طلبك ونود تأكيد موعد يناسبك.`;
   return (
     <section className="admin-panel">
-      <PanelHeading kicker="المتابعة" title="طلبات الحجز" description="تصل الطلبات هنا فور إرسال النموذج." />
+      <PanelHeading kicker="المتابعة" title="طلبات الحجز" description="تصل الطلبات هنا فور إرسال النموذج. غيّري الحالة بعد الرد لتتابعي ما تبقى." />
       <div className="booking-list">
         {bookings.length === 0 ? (
           <div className="admin-empty"><MailCheck size={25} /><p>لا توجد طلبات جديدة حالياً.</p></div>
         ) : (
-          bookings.map((booking) => (
-            <article key={booking.id} className="booking-row">
-              <div>
-                <p className="content-meta">{new Intl.DateTimeFormat("ar-TN", { dateStyle: "medium", timeStyle: "short" }).format(new Date(booking.createdAt))}</p>
-                <h3>{booking.name}</h3>
-                <p>{booking.preferredService} · {booking.preferredTime}</p>
-              </div>
-              <div className="booking-contact">
-                <a href={`mailto:${booking.email}`}>{booking.email}</a>
-                <a href={`tel:${booking.phone}`}>{booking.phone}</a>
-              </div>
-              <p className="booking-message">{booking.message}</p>
-              <button className="booking-delete" onClick={() => remove(booking.id)} aria-label="حذف الطلب"><Trash2 size={16} /></button>
-            </article>
-          ))
+          bookings.map((booking) => {
+            const status = booking.status ?? "new";
+            const digits = whatsappNumber(booking.phone);
+            return (
+              <article key={booking.id} className={`booking-row${isNewBooking(booking) ? " booking-row-new" : ""}`}>
+                <div>
+                  <p className="content-meta">{new Intl.DateTimeFormat("ar-TN", { dateStyle: "medium", timeStyle: "short" }).format(new Date(booking.createdAt))}</p>
+                  <h3>{booking.name}</h3>
+                  <p>{booking.preferredService} · {booking.preferredTime}</p>
+                </div>
+                <div className="booking-contact">
+                  <a href={`mailto:${booking.email}`}>{booking.email}</a>
+                  <a href={`tel:${booking.phone}`}>{booking.phone}</a>
+                </div>
+                <p className="booking-message">{booking.message}</p>
+                <div className="booking-actions">
+                  <label className="booking-status">
+                    <span className={`booking-badge booking-badge-${status}`}>{BOOKING_STATUS_LABELS[status]}</span>
+                    <select value={status} onChange={(event) => changeStatus(booking.id, event.target.value as BookingStatus)} aria-label="حالة الطلب">
+                      {(Object.keys(BOOKING_STATUS_LABELS) as BookingStatus[]).map((value) => (
+                        <option key={value} value={value}>{BOOKING_STATUS_LABELS[value]}</option>
+                      ))}
+                    </select>
+                  </label>
+                  {digits && (
+                    <a
+                      className="booking-reply"
+                      href={`https://wa.me/${digits}?text=${encodeURIComponent(replyText(booking))}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={() => status === "new" && changeStatus(booking.id, "contacted")}
+                    >
+                      <MessageCircle size={15} />رد واتساب
+                    </a>
+                  )}
+                  <a
+                    className="booking-reply"
+                    href={`mailto:${booking.email}?subject=${encodeURIComponent(`بخصوص طلب الحجز: ${booking.preferredService}`)}&body=${encodeURIComponent(`${replyText(booking)}\n\n${siteInfo.name}`)}`}
+                    onClick={() => status === "new" && changeStatus(booking.id, "contacted")}
+                  >
+                    <Mail size={15} />رد بالبريد
+                  </a>
+                  <button className="booking-delete" onClick={() => remove(booking.id)} aria-label="حذف الطلب"><Trash2 size={16} /></button>
+                </div>
+              </article>
+            );
+          })
         )}
       </div>
     </section>
@@ -945,7 +997,7 @@ function OverviewPanel({ onTab }: { onTab: (tab: Tab) => void }) {
   const cards = [
     { label: "الخدمات", value: services.length, icon: Sparkles, tab: "services" as Tab },
     { label: "المقالات", value: articles.length, icon: BookOpenText, tab: "articles" as Tab },
-    { label: "الطلبات", value: bookings.length, icon: MailCheck, tab: "bookings" as Tab },
+    { label: `الطلبات (${bookings.filter(isNewBooking).length} جديد)`, value: bookings.length, icon: MailCheck, tab: "bookings" as Tab },
     { label: "مبادئ العمل", value: principles.length, icon: UsersRound, tab: "principles" as Tab },
   ];
   const shortcuts: Array<{ label: string; description: string; tab: Tab }> = [
@@ -994,7 +1046,8 @@ function OverviewPanel({ onTab }: { onTab: (tab: Tab) => void }) {
 }
 
 export default function Admin() {
-  const { siteInfo } = useSiteContent();
+  const { bookings, siteInfo } = useSiteContent();
+  const newBookings = bookings.filter(isNewBooking).length;
   const [user, setUser] = useState<User | null>(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>("overview");
@@ -1018,7 +1071,7 @@ export default function Admin() {
             <div key={group.group} className="admin-nav-group">
               <p>{group.group}</p>
               {group.items.map(({ icon: Icon, id, label }) => (
-                <button key={id} className={activeTab === id ? "active" : ""} onClick={() => setActiveTab(id)}><Icon size={18} />{label}</button>
+                <button key={id} className={activeTab === id ? "active" : ""} onClick={() => setActiveTab(id)}><Icon size={18} />{label}{id === "bookings" && newBookings > 0 && <em className="nav-count" aria-label={`${newBookings} طلب جديد`}>{newBookings}</em>}</button>
               ))}
             </div>
           ))}
