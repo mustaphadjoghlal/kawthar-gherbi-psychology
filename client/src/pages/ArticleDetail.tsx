@@ -32,7 +32,7 @@ export default function ArticleDetail() {
       <div className="container article-reading-wrap">
         <Link href="/articles" className="back-link"><ArrowRight size={17} />{page.backLabel}</Link>
         <header>
-          <p className="article-meta">{article.category}<span />{new Intl.DateTimeFormat("ar-TN", { day: "numeric", month: "long", year: "numeric" }).format(new Date(article.publishedAt))}</p>
+          <p className="article-meta">{article.category}<span />{new Intl.DateTimeFormat("ar-DZ", { day: "numeric", month: "long", year: "numeric" }).format(new Date(article.publishedAt))}</p>
           <h1>{article.title}</h1>
           <p className="article-detail-excerpt">{article.excerpt}</p>
         </header>

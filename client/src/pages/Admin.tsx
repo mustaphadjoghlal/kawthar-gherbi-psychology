@@ -944,7 +944,7 @@ function BookingsPanel() {
             return (
               <article key={booking.id} className={`booking-row${isNewBooking(booking) ? " booking-row-new" : ""}`}>
                 <div>
-                  <p className="content-meta">{new Intl.DateTimeFormat("ar-TN", { dateStyle: "medium", timeStyle: "short" }).format(new Date(booking.createdAt))}</p>
+                  <p className="content-meta">{new Intl.DateTimeFormat("ar-DZ", { dateStyle: "medium", timeStyle: "short" }).format(new Date(booking.createdAt))}</p>
                   <h3>{booking.name}</h3>
                   <p>{booking.preferredService} · {booking.preferredTime}</p>
                 </div>
