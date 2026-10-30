@@ -79,7 +79,7 @@ export default function Contact() {
                     <label>{page.labelEmail}<input required type="email" dir="ltr" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} placeholder="name@example.com" /></label>
                   </div>
                   <div className="form-row">
-                    <label>{page.labelPhone}<input required type="tel" dir="ltr" value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} placeholder="+216 ..." /></label>
+                    <label>{page.labelPhone}<input required type="tel" dir="ltr" value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} placeholder="+213 ..." /></label>
                     <label>{page.labelService}
                       <select required value={form.preferredService} onChange={(event) => setForm({ ...form, preferredService: event.target.value })}>
                         <option value="">اختاري خدمة</option>

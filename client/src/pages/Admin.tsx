@@ -324,7 +324,7 @@ function ProfilePanel() {
         <div className="admin-form-grid">
           <TextField label="البريد الإلكتروني" type="email" dir="ltr" value={draft.email} onChange={(value) => update("email", value)} />
           <TextField label="الهاتف" dir="ltr" value={draft.phone} onChange={(value) => update("phone", value)} />
-          <TextField label="رقم واتساب" dir="ltr" hint="بالصيغة الدولية، مثل ‎+21612345678" value={draft.whatsapp} onChange={(value) => update("whatsapp", value)} />
+          <TextField label="رقم واتساب" dir="ltr" hint="بالصيغة الدولية، مثل ‎+213551234567" value={draft.whatsapp} onChange={(value) => update("whatsapp", value)} />
           <TextField label="الموقع أو نمط الجلسات" value={draft.location} onChange={(value) => update("location", value)} />
           <TextField label="حالة الحجز" value={draft.availability} onChange={(value) => update("availability", value)} />
         </div>
