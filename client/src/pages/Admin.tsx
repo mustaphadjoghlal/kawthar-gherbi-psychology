@@ -112,7 +112,7 @@ const allTabs = tabGroups.flatMap((group) => group.items);
 function useCopyDraft<K extends keyof SiteCopy>(key: K) {
   const { copy, saveCopy } = useSiteContent();
   const [draft, setDraft] = useState<SiteCopy[K]>(copy[key]);
-  useEffect(() => setDraft(copy[key]), [copy, key]);
+  useEffect(() => { setDraft(copy[key]); }, [copy, key]);
   const save = async (event: React.FormEvent) => {
     event.preventDefault();
     try {
@@ -227,7 +227,7 @@ function SetupScreen() {
 function ThemePanel() {
   const { siteInfo, saveSiteInfo } = useSiteContent();
   const [draft, setDraft] = useState<SiteTheme>(siteInfo.theme);
-  useEffect(() => setDraft(siteInfo.theme), [siteInfo.theme]);
+  useEffect(() => { setDraft(siteInfo.theme); }, [siteInfo.theme]);
   const update = (key: keyof SiteTheme, value: string) => setDraft((current) => ({ ...current, [key]: value }));
   const handleSave = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -280,7 +280,7 @@ function ThemePanel() {
 function ProfilePanel() {
   const { siteInfo, saveSiteInfo, uploadImage } = useSiteContent();
   const [draft, setDraft] = useState<SiteInfo>(siteInfo);
-  useEffect(() => setDraft(siteInfo), [siteInfo]);
+  useEffect(() => { setDraft(siteInfo); }, [siteInfo]);
   const update = (key: keyof SiteInfo, value: string) => setDraft((current) => ({ ...current, [key]: value }));
   const handleSave = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -431,7 +431,7 @@ function NavLinkEditor({ current, nextPosition, onCancel }: { current?: NavLink;
 function HeroVisualsForm() {
   const { siteInfo, saveSiteInfo, uploadImage } = useSiteContent();
   const [draft, setDraft] = useState<SiteInfo>(siteInfo);
-  useEffect(() => setDraft(siteInfo), [siteInfo]);
+  useEffect(() => { setDraft(siteInfo); }, [siteInfo]);
   const update = (key: keyof SiteInfo, value: string) => setDraft((current) => ({ ...current, [key]: value }));
   const handleSave = async (event: React.FormEvent) => {
     event.preventDefault();

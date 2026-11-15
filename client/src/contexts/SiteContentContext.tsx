@@ -4,7 +4,8 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, setDoc, updateDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
-import { firestoreDb, firebaseStorage, isFirebaseConfigured } from "@/lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import { firebaseAuth, firestoreDb, firebaseStorage, isFirebaseConfigured } from "@/lib/firebase";
 import { COLLECTION_PREFIX, STORAGE_FOLDER } from "@/lib/firebase-config";
 import { sanitizeHrefs } from "@/lib/sanitize-href";
 import {
@@ -236,12 +237,25 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
         setTestimonials(next);
         writeCache({ testimonials: next });
       }, onSnapshotError("testimonials")),
-      onSnapshot(query(collection(db, col("bookingRequests")), orderBy("createdAt", "desc")), (snapshot) => {
-        setBookings(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as BookingRequest));
-      }, onSnapshotError("bookingRequests")),
     ];
     return () => unsubscribers.forEach((unsubscribe) => unsubscribe());
   }, []);
+
+  // طلبات الحجز خاصة بالإدارة: لا نشترك بها إلا بعد تسجيل الدخول، كي لا يرى الزائر خطأ صلاحيات.
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  useEffect(() => {
+    if (!firebaseAuth) return;
+    return onAuthStateChanged(firebaseAuth, (user) => setIsSignedIn(Boolean(user)));
+  }, []);
+  useEffect(() => {
+    if (!firestoreDb || !isSignedIn) {
+      setBookings([]);
+      return;
+    }
+    return onSnapshot(query(collection(firestoreDb, col("bookingRequests")), orderBy("createdAt", "desc")), (snapshot) => {
+      setBookings(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as BookingRequest));
+    }, onSnapshotError("bookingRequests"));
+  }, [isSignedIn]);
 
   const theme = useMemo(() => ({ ...defaultSiteInfo.theme, ...siteInfo.theme }), [siteInfo.theme]);
   useGoogleFonts([theme.displayFont, theme.bodyFont]);
