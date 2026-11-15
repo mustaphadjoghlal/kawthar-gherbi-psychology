@@ -124,7 +124,7 @@ h1, h2, h3 { text-wrap: balance; }
 .button-quiet { justify-content: center; min-height: 52px; padding: 0.75rem 1.5rem; border: 2px solid rgba(255,255,255,.5); border-radius: 1.2rem 0 1.2rem 0; color: #fff; font-weight: 800; }
 .button-quiet:hover { background: #fff; border-color: #fff; color: var(--sage-deep); transform: translateY(-3px); }
 .button-sm { min-height: 42px; padding: 0.4rem 1rem; font-size: 0.86rem; border-radius: 0.9rem 0 0.9rem 0; }
-.text-action { color: var(--sage); font-size: 0.95rem; font-weight: 800; }
+.text-action { min-height: 44px; color: var(--sage); font-size: 0.95rem; font-weight: 800; }
 .text-action svg { transition: transform 180ms ease; }
 .text-action:hover { color: var(--clay); }
 .text-action:hover svg { transform: translateX(-4px); }
@@ -335,7 +335,7 @@ h1, h2, h3 { text-wrap: balance; }
 .article-list-body .text-action { margin-top: 1.15rem; }
 .article-detail { padding: clamp(3.5rem,7vw,6rem) 0; background: #fff; }
 .article-reading-wrap { max-width: 870px; }
-.back-link { display: inline-flex; align-items: center; gap: .45rem; color: var(--clay); font-size: .9rem; font-weight: 800; }
+.back-link { display: inline-flex; align-items: center; min-height: 44px; gap: .45rem; color: var(--clay); font-size: .9rem; font-weight: 800; }
 .article-detail header { max-width: 760px; margin-top: 2.5rem; }
 .article-detail h1 { margin-top: .7rem; color: var(--sage); font-size: clamp(2.5rem,5vw,4.5rem); font-weight: 900; letter-spacing: 0; line-height: 1.3; }
 .article-detail-excerpt { max-width: 56ch; margin-top: 1rem; color: #4f5d7c; font-size: 1.12rem; line-height: 2; }
@@ -389,12 +389,12 @@ h1, h2, h3 { text-wrap: balance; }
 .footer-brand .brand-lockup small { color: #b6c2dd; }
 .footer-brand .brand-mark { padding: 6px; border-radius: 1rem 0 1rem 0; background: #fff; }
 .footer-label { color: var(--clay); font-size: .85rem; font-weight: 900; letter-spacing: .06em; }
-.footer-links, .footer-contact { display: grid; gap: .7rem; margin-top: 1rem; }
-.footer-links a, .footer-contact a, .footer-contact span { display: inline-flex; align-items: flex-start; gap: .55rem; color: #dbe3f4; font-size: .93rem; font-weight: 600; transition: color 160ms ease; }
+.footer-links, .footer-contact { display: grid; gap: .1rem; margin-top: .6rem; }
+.footer-links a, .footer-contact a, .footer-contact span { display: inline-flex; align-items: center; min-height: 44px; gap: .55rem; color: #dbe3f4; font-size: .93rem; font-weight: 600; transition: color 160ms ease; }
 .footer-links a:hover, .footer-contact a:hover { color: var(--clay); }
 .footer-contact svg { flex: 0 0 auto; margin-top: .3rem; color: var(--clay); }
 .footer-contact-note { color: #b6c2dd; font-size: .85rem; }
-.admin-link { display: inline-flex; align-items: center; gap: .4rem; margin-top: 1.25rem; color: #8ea0c8; font-size: .75rem; }
+.admin-link { display: inline-flex; align-items: center; min-height: 44px; gap: .4rem; margin-top: .6rem; color: #8ea0c8; font-size: .75rem; }
 .footer-bottom { display: flex; justify-content: space-between; gap: 1.5rem; padding: 1.2rem 1.5rem; border-top: 1px solid rgba(255,255,255,.14); color: #8ea0c8; font-size: .72rem; line-height: 1.8; }
 .not-found-inline { min-height: 65vh; padding: 8rem 0; background: #fff; }
 .not-found-inline h1 { margin-top: .8rem; color: var(--sage); font-size: clamp(2.6rem,5vw,4.7rem); font-weight: 900; }
@@ -486,7 +486,7 @@ h1, h2, h3 { text-wrap: balance; }
 .admin-login-card > p:not(.eyebrow), .admin-setup-card > p:not(.eyebrow) { margin-top: .6rem; color: #748077; line-height: 2; }
 .admin-login-card form { display: grid; gap: 1rem; margin-top: 1.6rem; }
 .admin-login-card form .button-primary { margin-top: .35rem; }
-.admin-return-link { display: flex; justify-content: center; align-items: center; gap: .3rem; margin-top: 1.4rem; color: var(--sage); font-size: .78rem; font-weight: 700; }
+.admin-return-link { display: flex; justify-content: center; align-items: center; min-height: 44px; gap: .3rem; margin-top: 1.4rem; color: var(--sage); font-size: .78rem; font-weight: 700; }
 .setup-checklist { display: grid; gap: .55rem; margin: 1.5rem 0; padding: 1.1rem; background: var(--mist); color: #617067; font-size: .82rem; }
 .setup-checklist span { display: flex; align-items: center; gap: .45rem; }
 .setup-checklist b { display: grid; place-items: center; flex: 0 0 auto; width: 20px; height: 20px; border-radius: 50%; background: var(--sage); color: white; font-size: .65rem; }

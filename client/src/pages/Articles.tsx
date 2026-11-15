@@ -19,7 +19,7 @@ export default function Articles() {
           ) : (
             articles.map((article, index) => (
               <article key={article.id} className={`article-list-item article-list-${index + 1}`}>
-                <Link href={`/articles/${article.id}`} className="article-list-image"><img src={article.coverImage} alt="" /></Link>
+                <Link href={`/articles/${article.id}`} className="article-list-image" aria-label={article.title}><img src={article.coverImage} alt="" /></Link>
                 <div className="article-list-body">
                   <p className="article-meta">{article.category}<span />{new Intl.DateTimeFormat("ar-DZ", { day: "numeric", month: "long", year: "numeric" }).format(new Date(article.publishedAt))}</p>
                   <h2><Link href={`/articles/${article.id}`}>{article.title}</Link></h2>

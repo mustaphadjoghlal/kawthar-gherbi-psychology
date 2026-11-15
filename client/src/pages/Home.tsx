@@ -149,7 +149,7 @@ export default function Home() {
             <div className="article-preview-grid">
               {articles.slice(0, 3).map((article) => (
                 <article className="article-card" key={article.id}>
-                  <Link href={`/articles/${article.id}`} className="article-image"><img src={article.coverImage} alt="" /></Link>
+                  <Link href={`/articles/${article.id}`} className="article-image" aria-label={article.title}><img src={article.coverImage} alt="" /></Link>
                   <div className="article-card-body"><p className="article-meta">{article.category}<span />{new Intl.DateTimeFormat("ar-DZ", { month: "long", year: "numeric" }).format(new Date(article.publishedAt))}</p><h3><Link href={`/articles/${article.id}`}>{article.title}</Link></h3><p>{article.excerpt}</p><Link href={`/articles/${article.id}`} className="text-action">اقرئي المقال <ArrowLeft size={16} /></Link></div>
                 </article>
               ))}
