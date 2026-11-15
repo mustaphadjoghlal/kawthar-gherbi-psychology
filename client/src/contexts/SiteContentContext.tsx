@@ -6,6 +6,7 @@ import { addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, setDoc,
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { firestoreDb, firebaseStorage, isFirebaseConfigured } from "@/lib/firebase";
 import { COLLECTION_PREFIX, STORAGE_FOLDER } from "@/lib/firebase-config";
+import { sanitizeHrefs } from "@/lib/sanitize-href";
 import {
   defaultArticles,
   defaultNavLinks,
@@ -366,8 +367,8 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
   const value = useMemo(
     () => ({
       siteInfo,
-      copy,
-      navLinks,
+      copy: sanitizeHrefs(copy),
+      navLinks: sanitizeHrefs(navLinks),
       principles,
       services,
       articles,
