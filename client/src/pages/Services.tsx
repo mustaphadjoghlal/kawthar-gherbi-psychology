@@ -24,7 +24,7 @@ export default function Services() {
         <div className="container services-list">
           {services.map((service, index) => (
             <article className="service-row" key={service.id}>
-              <span className="row-index">0{index + 1}</span>
+              <span className="row-index">{String(index + 1).padStart(2, "0")}</span>
               <div className="row-icon"><ServiceIcon icon={service.icon} /></div>
               <div className="row-title"><h2>{service.title}</h2><p>{service.shortDescription}</p></div>
               <p className="row-description">{service.description}</p>
