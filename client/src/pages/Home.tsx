@@ -4,10 +4,12 @@
 import { ArrowLeft, ArrowUpLeft, CalendarDays, Check, Quote } from "lucide-react";
 import { Link } from "wouter";
 import { ServiceIcon } from "@/components/ServiceIcon";
-import { useSiteContent } from "@/contexts/SiteContentContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { usePublicContent } from "@/hooks/usePublicContent";
 
 export default function Home() {
-  const { articles, copy, services, siteInfo, testimonials } = useSiteContent();
+  const { articles, copy, services, siteInfo, testimonials } = usePublicContent();
+  const { locale, t } = useLanguage();
   const home = copy.home;
   return (
     <main>
@@ -79,7 +81,7 @@ export default function Home() {
                   <div className="icon-orb"><ServiceIcon icon={service.icon} /></div>
                   <h3>{service.title}</h3>
                   <p>{service.shortDescription}</p>
-                  <Link href="/contact" aria-label={`حجز ${service.title}`} className="arrow-disc"><ArrowUpLeft size={19} /></Link>
+                  <Link href="/contact" aria-label={t("bookService", { service: service.title })} className="arrow-disc"><ArrowUpLeft size={19} /></Link>
                 </article>
               ))}
             </div>
@@ -116,7 +118,7 @@ export default function Home() {
               {articles.slice(0, 3).map((article) => (
                 <article className="article-card" key={article.id}>
                   <Link href={`/articles/${article.id}`} className="article-image" aria-label={article.title}><img src={article.coverImage} alt="" /></Link>
-                  <div className="article-card-body"><p className="article-meta">{article.category}<span />{new Intl.DateTimeFormat("ar-DZ", { month: "long", year: "numeric" }).format(new Date(article.publishedAt))}</p><h3><Link href={`/articles/${article.id}`}>{article.title}</Link></h3><p>{article.excerpt}</p><Link href={`/articles/${article.id}`} className="text-action">اقرئي المقال <ArrowLeft size={16} /></Link></div>
+                  <div className="article-card-body"><p className="article-meta">{article.category}<span />{new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }).format(new Date(article.publishedAt))}</p><h3><Link href={`/articles/${article.id}`}>{article.title}</Link></h3><p>{article.excerpt}</p><Link href={`/articles/${article.id}`} className="text-action">{t("readArticle")} <ArrowLeft size={16} /></Link></div>
                 </article>
               ))}
             </div>

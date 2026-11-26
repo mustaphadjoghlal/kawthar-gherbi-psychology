@@ -8,6 +8,8 @@ import { onAuthStateChanged } from "firebase/auth";
 import { firebaseAuth, firestoreDb, firebaseStorage, isFirebaseConfigured } from "@/lib/firebase";
 import { COLLECTION_PREFIX, STORAGE_FOLDER } from "@/lib/firebase-config";
 import { sanitizeHrefs } from "@/lib/sanitize-href";
+import type { Overrides } from "@/i18n/translate";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   defaultArticles,
   defaultNavLinks,
@@ -36,11 +38,14 @@ type SiteContentContextValue = {
   services: Service[];
   articles: Article[];
   testimonials: Testimonial[];
+  /** ترجمات يدوية (إنجليزية وفرنسية) محفوظة من لوحة الإدارة. */
+  translations: Overrides;
   bookings: BookingRequest[];
   isLoading: boolean;
   isFirebaseConfigured: boolean;
   saveSiteInfo: (data: SiteInfo) => Promise<void>;
   saveCopy: (data: SiteCopy) => Promise<void>;
+  saveTranslations: (lang: "en" | "fr", entries: Record<string, string>) => Promise<void>;
   saveNavLink: (data: Omit<NavLink, "id"> & { id?: string }) => Promise<void>;
   deleteNavLink: (id: string) => Promise<void>;
   savePrinciple: (data: Omit<Principle, "id"> & { id?: string }) => Promise<void>;
@@ -71,7 +76,24 @@ type CachedShape = {
   services: Service[];
   articles: Article[];
   testimonials: Testimonial[];
+  translations: Overrides;
 };
+
+/** يقرأ مستند الترجمات: لكل لغة نص JSON فيه خريطة «مسار ← ترجمة». */
+function parseTranslations(data: Record<string, unknown> | undefined): Overrides {
+  const result: Overrides = {};
+  for (const lang of ["en", "fr"] as const) {
+    const raw = data?.[lang];
+    if (typeof raw !== "string") continue;
+    try {
+      const parsed = JSON.parse(raw) as Record<string, unknown>;
+      result[lang] = Object.fromEntries(Object.entries(parsed).filter(([, value]) => typeof value === "string" && value.trim())) as Record<string, string>;
+    } catch {
+      /* مستند ترجمات تالف لا يجب أن يكسر الموقع. */
+    }
+  }
+  return result;
+}
 
 /**
  * أي اشتراك يفشل (قواعد رافضة، انقطاع شبكة) يُسجَّل ولا يُترك صامتاً،
@@ -187,6 +209,9 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
   const [services, setServices] = useState<Service[]>(cached?.services ?? defaultServices);
   const [articles, setArticles] = useState<Article[]>(cached?.articles ?? defaultArticles);
   const [testimonials, setTestimonials] = useState<Testimonial[]>(cached?.testimonials ?? []);
+  const { dir } = useLanguage();
+  const isLatin = dir === "ltr";
+  const [translations, setTranslations] = useState<Overrides>(cached?.translations ?? {});
   const [bookings, setBookings] = useState<BookingRequest[]>([]);
   const [isLoading, setIsLoading] = useState(isFirebaseConfigured && !cached);
 
@@ -208,6 +233,11 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
         setCopy(next);
         writeCache({ copy: next });
       }, onSnapshotError("siteContent")),
+      onSnapshot(doc(db, col("siteContent"), "translations"), (snapshot) => {
+        const next = parseTranslations(snapshot.exists() ? (snapshot.data() as Record<string, unknown>) : undefined);
+        setTranslations(next);
+        writeCache({ translations: next });
+      }, onSnapshotError("translations")),
       onSnapshot(query(collection(db, col("navLinks")), orderBy("position")), (snapshot) => {
         if (snapshot.empty) return;
         const next = sortByPosition(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as NavLink));
@@ -289,21 +319,20 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
       "--border": toRgba(theme.primaryDeep, 0.15),
       "--input": toRgba(theme.primaryDeep, 0.2),
       "--ring": theme.primary,
-      "--font-display": `"${theme.displayFont}"`,
-      "--font-body": `"${theme.bodyFont}"`,
+      // الخطوط العربية المختارة قد تكون حروفها اللاتينية سيريف أو ناقصة، فنستخدم خطوطاً لاتينية واضحة للإنجليزية والفرنسية.
+      "--font-display": isLatin ? `"Cairo", sans-serif` : `"${theme.displayFont}", "Cairo", sans-serif`,
+      "--font-body": isLatin ? `"Tajawal", "Cairo", sans-serif` : `"${theme.bodyFont}", "Tajawal", sans-serif`,
       "--radius": `${theme.radius}rem`,
       "--base-font-size": `${theme.baseFontSize}px`,
     };
     Object.entries(values).forEach(([property, value]) => root.style.setProperty(property, value));
-  }, [theme]);
+  }, [theme, isLatin]);
 
+  // عنوان الصفحة ووصفها يضبطهما DocumentMeta لأنهما يتبعان لغة الزائر.
   useEffect(() => {
-    document.title = siteInfo.metaTitle || `${siteInfo.name} | ${siteInfo.role}`;
-    const description = document.querySelector('meta[name="description"]');
-    if (description) description.setAttribute("content", siteInfo.metaDescription);
     const themeColor = document.querySelector('meta[name="theme-color"]');
     if (themeColor) themeColor.setAttribute("content", theme.primary);
-  }, [siteInfo.metaTitle, siteInfo.metaDescription, siteInfo.name, siteInfo.role, theme.primary]);
+  }, [theme.primary]);
 
   const ensureDb = () => {
     if (!firestoreDb) throw new Error("لم تُضف إعدادات Firebase بعد.");
@@ -323,6 +352,10 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
   };
   const saveCopy = async (data: SiteCopy) => {
     await setDoc(doc(ensureDb(), col("siteContent"), "copy"), data, { merge: true });
+  };
+  const saveTranslations = async (lang: "en" | "fr", entries: Record<string, string>) => {
+    const clean = Object.fromEntries(Object.entries(entries).filter(([, value]) => value.trim()));
+    await setDoc(doc(ensureDb(), col("siteContent"), "translations"), { [lang]: JSON.stringify(clean) }, { merge: true });
   };
   const saveNavLink = (data: Omit<NavLink, "id"> & { id?: string }) => saveIn("navLinks", data);
   const deleteNavLink = async (id: string) => deleteDoc(doc(ensureDb(), col("navLinks"), id));
@@ -387,11 +420,13 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
       services,
       articles,
       testimonials,
+      translations,
       bookings,
       isLoading,
       isFirebaseConfigured,
       saveSiteInfo,
       saveCopy,
+      saveTranslations,
       saveNavLink,
       deleteNavLink,
       savePrinciple,
@@ -408,7 +443,7 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
       uploadImage,
       seedContent,
     }),
-    [siteInfo, copy, navLinks, principles, services, articles, testimonials, bookings, isLoading],
+    [siteInfo, copy, navLinks, principles, services, articles, testimonials, translations, bookings, isLoading],
   );
 
   return <SiteContentContext.Provider value={value}>{children}</SiteContentContext.Provider>;

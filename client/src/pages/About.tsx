@@ -5,10 +5,12 @@ import { ArrowLeft, ShieldCheck } from "lucide-react";
 import { Link } from "wouter";
 import { PageLead } from "@/components/PageLead";
 import { ServiceIcon } from "@/components/ServiceIcon";
-import { useSiteContent } from "@/contexts/SiteContentContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { usePublicContent } from "@/hooks/usePublicContent";
 
 export default function About() {
-  const { copy, principles, siteInfo } = useSiteContent();
+  const { copy, principles, siteInfo } = usePublicContent();
+  const { t } = useLanguage();
   const about = copy.about;
   return (
     <main>
@@ -29,8 +31,8 @@ export default function About() {
             <h2>{siteInfo.aboutTitle}</h2>
             <p>{siteInfo.aboutText}</p>
             {about.storyExtraText && <p>{about.storyExtraText}</p>}
-            {siteInfo.credentials && <div className="credential-line"><span>المؤهلات</span><strong>{siteInfo.credentials}</strong></div>}
-            {siteInfo.yearsExperience && <div className="credential-line"><span>الخبرة</span><strong>{siteInfo.yearsExperience}</strong></div>}
+            {siteInfo.credentials && <div className="credential-line"><span>{t("qualifications")}</span><strong>{siteInfo.credentials}</strong></div>}
+            {siteInfo.yearsExperience && <div className="credential-line"><span>{t("experience")}</span><strong>{siteInfo.yearsExperience}</strong></div>}
           </div>
         </div>
       </section>

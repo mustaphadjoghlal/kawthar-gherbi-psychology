@@ -4,12 +4,14 @@
 import { useMemo } from "react";
 import { ArrowRight } from "lucide-react";
 import { Link, useRoute } from "wouter";
-import { useSiteContent } from "@/contexts/SiteContentContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { usePublicContent } from "@/hooks/usePublicContent";
 import { isHtmlContent, sanitizeHtml, toTextBlocks } from "@/lib/rich-text";
 
 export default function ArticleDetail() {
   const [, params] = useRoute<{ id: string }>("/articles/:id");
-  const { articles, copy } = useSiteContent();
+  const { articles, copy } = usePublicContent();
+  const { locale, t } = useLanguage();
   const page = copy.articles;
   const article = articles.find((item) => item.id === params?.id);
   const isRich = Boolean(article && isHtmlContent(article.content));
@@ -20,7 +22,7 @@ export default function ArticleDetail() {
       <main className="not-found-inline">
         <div className="container">
           <p className="eyebrow"><span />{page.lead.eyebrow}</p>
-          <h1>لم نعثر على هذا المقال.</h1>
+          <h1>{t("articleNotFound")}</h1>
           <Link href="/articles" className="button-primary">{page.backLabel} <ArrowRight size={17} /></Link>
         </div>
       </main>
@@ -32,7 +34,7 @@ export default function ArticleDetail() {
       <div className="container article-reading-wrap">
         <Link href="/articles" className="back-link"><ArrowRight size={17} />{page.backLabel}</Link>
         <header>
-          <p className="article-meta">{article.category}<span />{new Intl.DateTimeFormat("ar-DZ", { day: "numeric", month: "long", year: "numeric" }).format(new Date(article.publishedAt))}</p>
+          <p className="article-meta">{article.category}<span />{new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", year: "numeric" }).format(new Date(article.publishedAt))}</p>
           <h1>{article.title}</h1>
           <p className="article-detail-excerpt">{article.excerpt}</p>
         </header>

@@ -145,7 +145,7 @@ h1, h2, h3 { text-wrap: balance; }
 .section-heading h2 { max-width: 15ch; margin-top: .75rem; font-size: clamp(2.15rem,3.3vw,3.4rem); }
 .section-heading > p:not(.eyebrow) { max-width: 53ch; margin-top: 1rem; color: #657269; line-height: 2; }
 .service-preview-grid { display: grid; grid-template-columns: 1.18fr .94fr .94fr; align-items: stretch; gap: 1px; background: rgba(78,106,90,.15); }
-.service-preview { position: relative; min-height: 345px; padding: clamp(1.5rem,3vw,2.4rem); background: #f8fbf6; transition: transform 220ms cubic-bezier(.23,1,.32,1), background 220ms ease; }
+.service-preview { position: relative; min-height: 345px; padding: clamp(1.5rem,3vw,2.4rem) clamp(1.5rem,3vw,2.4rem) 5rem; background: #f8fbf6; transition: transform 220ms cubic-bezier(.23,1,.32,1), background 220ms ease; }
 .service-preview:hover { z-index: 1; background: var(--paper); box-shadow: 0 16px 34px rgba(52,77,63,.12); transform: translateY(-7px); }
 .service-1 { background: var(--sage-deep); color: #f9fcf7; }
 .service-1:hover { background: #2d4739; }
@@ -527,6 +527,68 @@ h1, h2, h3 { text-wrap: balance; }
 .article-prose strong { color: var(--sage-deep); }
 .article-prose hr { margin: 1.8rem 0; border: 0; border-top: 1px solid var(--line); }
 
+
+/* لوحة الترجمات في الإدارة */
+.translation-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: .8rem; margin-top: 1.4rem; }
+.translation-search { display: flex; align-items: center; gap: .5rem; flex: 1; min-width: 200px; padding: 0 .75rem; border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper); color: var(--sage-deep); }
+.translation-search input { flex: 1; height: 40px; border: 0; outline: 0; background: transparent; font-size: .85rem; }
+.translation-list { display: grid; gap: .9rem; margin-top: .8rem; }
+.translation-row { display: grid; gap: .35rem; padding: .9rem 1rem; border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper); }
+.translation-row.missing { border-color: var(--clay); background: color-mix(in srgb, var(--clay) 7%, var(--paper)); }
+.translation-label { color: #7d8a80; font-size: .68rem; font-weight: 700; }
+.translation-source { color: var(--sage-deep); font-size: .88rem; line-height: 1.9; white-space: pre-line; }
+.translation-row textarea { width: 100%; padding: .6rem .75rem; border: 1px solid rgba(51,72,60,.2); border-radius: var(--radius); background: rgba(255,253,249,.9); color: var(--sage-deep); font-size: .88rem; line-height: 1.7; resize: vertical; outline: none; }
+.translation-row textarea:focus { border-color: var(--sage); box-shadow: 0 0 0 3px rgba(78,106,90,.12); }
+
+/* ============================================================
+   مبدّل اللغة
+   ============================================================ */
+.lang-switch { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: 999px; background: color-mix(in srgb, var(--paper) 80%, transparent); }
+.lang-switch button { min-width: 40px; height: 34px; padding: 0 .65rem; border: 0; border-radius: 999px; background: transparent; color: var(--sage-deep); font-size: .78rem; font-weight: 700; transition: background 160ms ease, color 160ms ease; }
+.lang-switch button:hover:not(.active) { background: var(--sage-soft); }
+.lang-switch button.active { background: var(--sage); color: #fff; }
+.lang-switch-mobile { justify-self: start; margin: .2rem 0 .6rem; }
+.lang-switch-mobile button { min-width: 56px; height: 44px; font-size: .9rem; }
+.nav-link { white-space: nowrap; }
+
+/* ============================================================
+   الاتجاه من اليسار إلى اليمين (English / Français)
+   التصميم الأصلي مكتوب لـ RTL، فنعكس هنا كل ما كان مرتبطاً باليمين واليسار.
+   ============================================================ */
+[dir="ltr"] svg.lucide-arrow-left, [dir="ltr"] svg.lucide-arrow-right, [dir="ltr"] svg.lucide-arrow-up-left { transform: scaleX(-1); }
+[dir="ltr"] .nav-link::after { transform-origin: left; }
+[dir="ltr"] .text-action:hover { transform: translateX(3px); }
+[dir="ltr"] .hero-section::after { left: auto; right: -18rem; }
+[dir="ltr"] .hero-image-arch { inset: 0 3rem 0 0; }
+[dir="ltr"] .hero-card { right: auto; left: 0; }
+[dir="ltr"] .hero-curve { right: auto; left: -1.6rem; }
+[dir="ltr"] .section-marker i { margin-right: 0; margin-left: 9px; }
+[dir="ltr"] .service-number { left: auto; right: 1.45rem; }
+[dir="ltr"] .service-preview .arrow-disc { right: auto; left: 1.6rem; }
+[dir="ltr"] .page-lead::before { left: auto; right: -8rem; }
+[dir="ltr"] .page-lead::after { right: auto; left: max(1.1rem, calc((100% - 1280px) / 2 + 1.5rem)); background: linear-gradient(270deg, var(--clay), transparent); }
+[dir="ltr"] .about-story-image { padding-left: 0; padding-right: 2rem; }
+[dir="ltr"] .about-story-image::before { inset: 2rem 2rem -2rem 0; }
+[dir="ltr"] .image-caption { margin: -1rem auto 0 -1rem; }
+[dir="ltr"] .services-list::before { right: auto; left: 4.1rem; }
+[dir="ltr"] .article-list-item::before { right: auto; left: -1.2rem; transform: rotate(1.2deg); }
+[dir="ltr"] .article-end-note, [dir="ltr"] .form-error { border-right: 0; border-left: 3px solid var(--clay); }
+[dir="ltr"] .form-error { border-left-color: #b7554b; }
+[dir="ltr"] .article-prose blockquote { padding-right: 0; padding-left: 1.1rem; border-right: 0; border-left: 3px solid var(--clay); }
+[dir="ltr"] .contact-section::after { left: auto; right: -9rem; }
+[dir="ltr"] .booking-form-wrap { box-shadow: -12px 13px 0 rgba(219,229,220,.55); }
+[dir="ltr"] .mobile-nav-link, [dir="ltr"] .contact-detail-list, [dir="ltr"] .footer-grid, [dir="ltr"] .footer-bottom { text-align: left; }
+/* الخط اللاتيني: تباعد الأحرف السالب مصمَّم للعربية ويضيّق الحروف اللاتينية، والعناوين الإنجليزية/الفرنسية أطول. */
+[dir="ltr"] .hero-copy h1, [dir="ltr"] .welcome-grid h2, [dir="ltr"] .section-heading h2, [dir="ltr"] .about-band h2, [dir="ltr"] .contact-cta-section h2, [dir="ltr"] .page-lead h1,
+[dir="ltr"] .about-story-copy h2, [dir="ltr"] .guidance-grid h2, [dir="ltr"] .contact-details h2, [dir="ltr"] .article-detail h1, [dir="ltr"] .not-found-inline h1 { letter-spacing: -.02em; }
+[dir="ltr"] .hero-copy h1 { max-width: 14ch; font-size: clamp(2.6rem, 5.2vw, 4.6rem); line-height: 1.12; }
+[dir="ltr"] .welcome-grid h2, [dir="ltr"] .section-heading h2, [dir="ltr"] .about-band h2, [dir="ltr"] .contact-cta-section h2,
+[dir="ltr"] .about-story-copy h2, [dir="ltr"] .guidance-grid h2, [dir="ltr"] .contact-details h2 { max-width: 20ch; line-height: 1.2; }
+[dir="ltr"] .page-lead h1 { max-width: 20ch; font-size: clamp(2.3rem, 4.4vw, 3.8rem); line-height: 1.12; }
+[dir="ltr"] .article-list-body h2 { max-width: 26ch; line-height: 1.25; }
+[dir="ltr"] .row-title h2, [dir="ltr"] .service-preview h3 { line-height: 1.25; }
+[dir="ltr"] .eyebrow { letter-spacing: .02em; }
+[dir="ltr"] .article-prose h2 { margin-bottom: .6rem; }
 
 @media (max-width: 1000px) {
   .hero-grid, .about-story-grid, .contact-grid { grid-template-columns: 1fr; }

@@ -12,6 +12,7 @@ import {
   Compass,
   FileQuestion,
   Home as HomeIcon,
+  Languages,
   LayoutDashboard,
   ListTree,
   LogOut,
@@ -34,6 +35,7 @@ import { toast } from "sonner";
 import { firebaseAuth, isFirebaseConfigured } from "@/lib/firebase";
 import { useSiteContent } from "@/contexts/SiteContentContext";
 import { IMAGE_POSITIONS } from "@/lib/default-content";
+import { TranslationsPanel } from "@/components/admin/TranslationsPanel";
 import {
   ColorField,
   Field,
@@ -73,6 +75,7 @@ type Tab =
   | "articles"
   | "principles"
   | "testimonials"
+  | "translations"
   | "footer"
   | "bookings";
 
@@ -101,6 +104,7 @@ const tabGroups: Array<{ group: string; items: Array<{ id: Tab; label: string; i
       { id: "articles", label: "المقالات", icon: BookOpenText },
       { id: "principles", label: "مبادئ العمل", icon: ListTree },
       { id: "testimonials", label: "آراء العملاء", icon: MessageSquareQuote },
+      { id: "translations", label: "الترجمات (EN / FR)", icon: Languages },
       { id: "bookings", label: "طلبات الحجز", icon: ClipboardList },
     ],
   },
@@ -1098,6 +1102,7 @@ export default function Admin() {
           {activeTab === "articles" && <ArticlesPanel />}
           {activeTab === "principles" && <PrinciplesPanel />}
           {activeTab === "testimonials" && <TestimonialsPanel />}
+          {activeTab === "translations" && <TranslationsPanel />}
           {activeTab === "bookings" && <BookingsPanel />}
         </div>
       </div>

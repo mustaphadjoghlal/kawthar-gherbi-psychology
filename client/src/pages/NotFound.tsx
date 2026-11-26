@@ -3,10 +3,10 @@
  */
 import { ArrowRight } from "lucide-react";
 import { Link } from "wouter";
-import { useSiteContent } from "@/contexts/SiteContentContext";
+import { usePublicContent } from "@/hooks/usePublicContent";
 
 export default function NotFound() {
-  const { copy } = useSiteContent();
+  const { copy } = usePublicContent();
   const page = copy.notFound;
   return (
     <main className="not-found-inline">

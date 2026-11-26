@@ -4,10 +4,12 @@
 import { Link } from "wouter";
 import { ArrowUpLeft, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import { BrandMark } from "@/components/BrandMark";
-import { useSiteContent } from "@/contexts/SiteContentContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { usePublicContent } from "@/hooks/usePublicContent";
 
 export function SiteFooter() {
-  const { copy, navLinks, siteInfo } = useSiteContent();
+  const { copy, navLinks, siteInfo } = usePublicContent();
+  const { t } = useLanguage();
   const footer = copy.footer;
   const links = navLinks.filter((link) => link.visible !== false);
   const hasContactDetails = Boolean(siteInfo.email || siteInfo.phone || siteInfo.location || siteInfo.whatsapp);
@@ -37,7 +39,7 @@ export function SiteFooter() {
             {siteInfo.phone && <a href={`tel:${siteInfo.phone.replace(/\s/g, "")}`}><Phone size={16} />{siteInfo.phone}</a>}
             {siteInfo.whatsapp && (
               <a href={`https://wa.me/${siteInfo.whatsapp.replace(/[^\d]/g, "")}`} target="_blank" rel="noreferrer">
-                <MessageCircle size={16} />واتساب
+                <MessageCircle size={16} />{t("whatsapp")}
               </a>
             )}
             {siteInfo.location && <span><MapPin size={16} />{siteInfo.location}</span>}
