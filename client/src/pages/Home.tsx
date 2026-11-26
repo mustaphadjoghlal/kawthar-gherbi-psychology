@@ -88,10 +88,10 @@ export default function Home() {
                 <Link href={home.services.ctaHref} className="text-action">{home.services.ctaLabel} <ArrowLeft size={17} /></Link>
               )}
             </div>
-            <div className="service-preview-grid">
-              {services.slice(0, 3).map((service, index) => (
+            <div className={`service-preview-grid${services.length > 3 ? " many" : ""}`}>
+              {services.map((service, index) => (
                 <article className={`service-preview service-${index + 1}`} key={service.id}>
-                  <span className="service-number">0{index + 1}</span>
+                  <span className="service-number">{String(index + 1).padStart(2, "0")}</span>
                   <div className="icon-orb"><ServiceIcon icon={service.icon} /></div>
                   <h3>{service.title}</h3>
                   <p>{service.shortDescription}</p>

@@ -150,6 +150,7 @@ h1, h2, h3 { text-wrap: balance; }
 .section-heading h2 { max-width: 15ch; margin-top: .75rem; font-size: clamp(2.15rem,3.3vw,3.4rem); }
 .section-heading > p:not(.eyebrow) { max-width: 53ch; margin-top: 1rem; color: #657269; line-height: 2; }
 .service-preview-grid { display: grid; grid-template-columns: 1.18fr .94fr .94fr; align-items: stretch; gap: 1px; background: rgba(78,106,90,.15); }
+.service-preview-grid.many { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .service-preview { position: relative; min-height: 345px; padding: clamp(1.5rem,3vw,2.4rem) clamp(1.5rem,3vw,2.4rem) 5rem; background: #f8fbf6; transition: transform 220ms cubic-bezier(.23,1,.32,1), background 220ms ease; }
 .service-preview:hover { z-index: 1; background: var(--paper); box-shadow: 0 16px 34px rgba(52,77,63,.12); transform: translateY(-7px); }
 .service-1 { background: var(--sage-deep); color: #f9fcf7; }
@@ -614,6 +615,8 @@ h1, h2, h3 { text-wrap: balance; }
   .admin-shortcut-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
 }
 @media (max-width: 720px) {
+  .service-preview-grid.many { grid-template-columns: 1fr; }
+  .service-preview-grid.many .service-preview { min-height: 250px; }
   .container { padding-inline: 1.1rem; }
   .hero-section { padding-top: 3.8rem; }
   .hero-grid { gap: 2.5rem; }
