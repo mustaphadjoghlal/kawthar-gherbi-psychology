@@ -7,7 +7,9 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 import { SiteContentProvider } from "@/contexts/SiteContentContext";
+import { DocumentMeta } from "@/components/DocumentMeta";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import About from "@/pages/About";
@@ -31,6 +33,7 @@ function PublicLayout() {
   return (
     <>
       <ScrollToTop />
+      {!isAdmin && <DocumentMeta />}
       {!isAdmin && <SiteHeader />}
       <Switch>
         <Route path="/" component={Home} />
@@ -52,10 +55,12 @@ export default function App() {
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
-          <SiteContentProvider>
-            <PublicLayout />
-            <Toaster richColors position="top-center" />
-          </SiteContentProvider>
+          <LanguageProvider>
+            <SiteContentProvider>
+              <PublicLayout />
+              <Toaster richColors position="top-center" />
+            </SiteContentProvider>
+          </LanguageProvider>
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

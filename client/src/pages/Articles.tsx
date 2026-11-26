@@ -4,10 +4,12 @@
 import { ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
 import { PageLead } from "@/components/PageLead";
-import { useSiteContent } from "@/contexts/SiteContentContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { usePublicContent } from "@/hooks/usePublicContent";
 
 export default function Articles() {
-  const { articles, copy } = useSiteContent();
+  const { articles, copy } = usePublicContent();
+  const { locale, t } = useLanguage();
   const page = copy.articles;
   return (
     <main>
@@ -21,10 +23,10 @@ export default function Articles() {
               <article key={article.id} className={`article-list-item article-list-${index + 1}`}>
                 <Link href={`/articles/${article.id}`} className="article-list-image" aria-label={article.title}><img src={article.coverImage} alt="" /></Link>
                 <div className="article-list-body">
-                  <p className="article-meta">{article.category}<span />{new Intl.DateTimeFormat("ar-DZ", { day: "numeric", month: "long", year: "numeric" }).format(new Date(article.publishedAt))}</p>
+                  <p className="article-meta">{article.category}<span />{new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", year: "numeric" }).format(new Date(article.publishedAt))}</p>
                   <h2><Link href={`/articles/${article.id}`}>{article.title}</Link></h2>
                   <p>{article.excerpt}</p>
-                  <Link href={`/articles/${article.id}`} className="text-action">تابعي القراءة <ArrowLeft size={17} /></Link>
+                  <Link href={`/articles/${article.id}`} className="text-action">{t("continueReading")} <ArrowLeft size={17} /></Link>
                 </div>
               </article>
             ))

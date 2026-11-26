@@ -5,10 +5,12 @@ import { ArrowLeft, CalendarDays } from "lucide-react";
 import { Link } from "wouter";
 import { PageLead } from "@/components/PageLead";
 import { ServiceIcon } from "@/components/ServiceIcon";
-import { useSiteContent } from "@/contexts/SiteContentContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { usePublicContent } from "@/hooks/usePublicContent";
 
 export default function Services() {
-  const { copy, services } = useSiteContent();
+  const { copy, services } = usePublicContent();
+  const { t } = useLanguage();
   const page = copy.services;
   return (
     <main>
@@ -26,7 +28,7 @@ export default function Services() {
               <div className="row-icon"><ServiceIcon icon={service.icon} /></div>
               <div className="row-title"><h2>{service.title}</h2><p>{service.shortDescription}</p></div>
               <p className="row-description">{service.description}</p>
-              <Link href="/contact" className="arrow-disc" aria-label={`التواصل بخصوص ${service.title}`}><ArrowLeft size={20} /></Link>
+              <Link href="/contact" className="arrow-disc" aria-label={t("contactAbout", { service: service.title })}><ArrowLeft size={20} /></Link>
             </article>
           ))}
         </div>

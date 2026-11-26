@@ -4,12 +4,19 @@
 import { useState } from "react";
 import { CalendarDays, CheckCircle2, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import { PageLead } from "@/components/PageLead";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { usePublicContent } from "@/hooks/usePublicContent";
+import { LANGUAGES } from "@/i18n/languages";
+import { translateUi } from "@/i18n/ui";
 import { useSiteContent } from "@/contexts/SiteContentContext";
 
 const initialForm = { name: "", email: "", phone: "", preferredService: "", preferredTime: "", message: "" };
 
 export default function Contact() {
-  const { copy, createBooking, isFirebaseConfigured, services, siteInfo } = useSiteContent();
+  const { copy, services, siteInfo } = usePublicContent();
+  // القيمة المرسلة للإدارة هي اسم الخدمة بالعربية الأصلية، أما المعروض للزائر فمترجم.
+  const { createBooking, isFirebaseConfigured, services: sourceServices } = useSiteContent();
+  const { lang, t } = useLanguage();
   const page = copy.contact;
   const hasContactDetails = Boolean(siteInfo.email || siteInfo.phone || siteInfo.location || siteInfo.whatsapp);
   const [form, setForm] = useState(initialForm);
@@ -20,17 +27,19 @@ export default function Contact() {
     event.preventDefault();
     if (!isFirebaseConfigured) {
       setStatus("error");
-      setError("لم يكتمل ربط نموذج الحجز بقاعدة البيانات بعد. يُرجى التواصل عبر البريد أو الهاتف الظاهرين أدناه.");
+      setError(t("errorNotConnected"));
       return;
     }
     setStatus("sending");
     try {
-      await createBooking(form);
+      // نذكر للإدارة لغة الزائر كي ترد عليه بلغته.
+      const note = lang === "ar" ? "" : `\n\n— ${translateUi("visitorLanguage", "ar", { language: LANGUAGES.find((item) => item.code === lang)?.name ?? lang })}`;
+      await createBooking({ ...form, message: `${form.message}${note}` });
       setStatus("sent");
       setForm(initialForm);
     } catch (submissionError) {
       setStatus("error");
-      setError(submissionError instanceof Error ? submissionError.message : "تعذر إرسال الطلب حالياً.");
+      setError(submissionError instanceof Error ? submissionError.message : t("errorSend"));
     }
   };
 
@@ -50,14 +59,14 @@ export default function Contact() {
             <p>{page.introText}</p>
             {hasContactDetails && (
               <div className="contact-detail-list">
-                {siteInfo.email && <a href={`mailto:${siteInfo.email}`}><Mail size={19} /><span><small>البريد الإلكتروني</small>{siteInfo.email}</span></a>}
-                {siteInfo.phone && <a href={`tel:${siteInfo.phone.replace(/\s/g, "")}`}><Phone size={19} /><span><small>الهاتف</small>{siteInfo.phone}</span></a>}
+                {siteInfo.email && <a href={`mailto:${siteInfo.email}`}><Mail size={19} /><span><small>{t("email")}</small>{siteInfo.email}</span></a>}
+                {siteInfo.phone && <a href={`tel:${siteInfo.phone.replace(/\s/g, "")}`}><Phone size={19} /><span><small>{t("phone")}</small>{siteInfo.phone}</span></a>}
                 {siteInfo.whatsapp && (
                   <a href={`https://wa.me/${siteInfo.whatsapp.replace(/[^\d]/g, "")}`} target="_blank" rel="noreferrer">
-                    <MessageCircle size={19} /><span><small>واتساب</small>{siteInfo.whatsapp}</span>
+                    <MessageCircle size={19} /><span><small>{t("whatsapp")}</small>{siteInfo.whatsapp}</span>
                   </a>
                 )}
-                {siteInfo.location && <div><MapPin size={19} /><span><small>المكان</small>{siteInfo.location}</span></div>}
+                {siteInfo.location && <div><MapPin size={19} /><span><small>{t("location")}</small>{siteInfo.location}</span></div>}
               </div>
             )}
             {page.privacyNote && <div className="privacy-note"><CheckCircle2 size={19} /><p>{page.privacyNote}</p></div>}
@@ -75,22 +84,22 @@ export default function Contact() {
                 <>
                   <div className="form-heading"><span>{page.formTitle}</span><p>{page.formNote}</p></div>
                   <div className="form-row">
-                    <label>{page.labelName}<input required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="اكتبي اسمك" /></label>
+                    <label>{page.labelName}<input required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder={t("namePlaceholder")} /></label>
                     <label>{page.labelEmail}<input required type="email" dir="ltr" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} placeholder="name@example.com" /></label>
                   </div>
                   <div className="form-row">
                     <label>{page.labelPhone}<input required type="tel" dir="ltr" value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} placeholder="+213 ..." /></label>
                     <label>{page.labelService}
                       <select required value={form.preferredService} onChange={(event) => setForm({ ...form, preferredService: event.target.value })}>
-                        <option value="">اختاري خدمة</option>
-                        {services.map((service) => <option key={service.id} value={service.title}>{service.title}</option>)}
+                        <option value="">{t("chooseService")}</option>
+                        {services.map((service, index) => <option key={service.id} value={sourceServices[index]?.title ?? service.title}>{service.title}</option>)}
                       </select>
                     </label>
                   </div>
-                  <label>{page.labelTime}<input required value={form.preferredTime} onChange={(event) => setForm({ ...form, preferredTime: event.target.value })} placeholder="مثال: صباحاً خلال أيام الأسبوع" /></label>
-                  <label>{page.labelMessage}<textarea required rows={5} value={form.message} onChange={(event) => setForm({ ...form, message: event.target.value })} placeholder="اكتبي باختصار ما ترغبين في مناقشته..." /></label>
+                  <label>{page.labelTime}<input required value={form.preferredTime} onChange={(event) => setForm({ ...form, preferredTime: event.target.value })} placeholder={t("timePlaceholder")} /></label>
+                  <label>{page.labelMessage}<textarea required rows={5} value={form.message} onChange={(event) => setForm({ ...form, message: event.target.value })} placeholder={t("messagePlaceholder")} /></label>
                   {status === "error" && <p className="form-error">{error}</p>}
-                  <button className="button-primary justify-center" type="submit" disabled={status === "sending"}>{status === "sending" ? "جارٍ إرسال الطلب..." : page.submitLabel}</button>
+                  <button className="button-primary justify-center" type="submit" disabled={status === "sending"}>{status === "sending" ? t("sending") : page.submitLabel}</button>
                 </>
               )}
             </form>
