@@ -54,6 +54,16 @@ export const SITE_INFO_TEXT_FIELDS = [
   "philosophyTitle", "philosophyText", "credentials", "yearsExperience", "location", "availability", "metaTitle", "metaDescription",
 ] as const;
 
+const SITE_INFO_LABELS: Record<string, string> = {
+  role: "وصف المهنة تحت الاسم", heroEyebrow: "عبارة فوق عنوان الواجهة", heroTitle: "عنوان الواجهة", heroDescription: "وصف الواجهة",
+  welcomeTitle: "عنوان الترحيب", welcomeText: "نص الترحيب", aboutTitle: "عنوان «من أنا»", aboutText: "نص «من أنا»",
+  philosophyTitle: "عنوان فلسفة العمل", philosophyText: "نص فلسفة العمل", credentials: "المؤهلات", yearsExperience: "سنوات الخبرة",
+  location: "المكان", availability: "التوفر", metaTitle: "عنوان التبويب (SEO)", metaDescription: "وصف محركات البحث (SEO)",
+};
+const PAGE_LABELS: Record<string, string> = {
+  header: "الترويسة", home: "الرئيسية", about: "من أنا", services: "الخدمات", articles: "المقالات", contact: "التواصل", notFound: "صفحة غير موجودة", footer: "التذييل",
+};
+
 export type TranslatableEntry = {
   path: string;
   group: string;
@@ -77,13 +87,17 @@ type RawContent = {
 export function collectTranslatable(raw: RawContent): TranslatableEntry[] {
   const entries: TranslatableEntry[] = [];
   const add = (path: string, group: string, label: string, source: unknown) => {
-    if (typeof source !== "string" || !source.trim()) return;
+    // نصوص بلا حروف عربية (مثل 404 أو أسماء لاتينية) لا تحتاج ترجمة، إلا حقول بيانات الموقع فقد تُترجَم يدوياً.
+    if (typeof source !== "string" || !source.trim() || (!group.startsWith("بيانات") && !hasArabic(source))) return;
     entries.push({ path, group, label, source, long: source.length > 90 || source.includes("\n") });
   };
-  for (const field of SITE_INFO_TEXT_FIELDS) add(`siteInfo.${field}`, "بيانات الموقع", field, raw.siteInfo[field]);
+  for (const field of SITE_INFO_TEXT_FIELDS) add(`siteInfo.${field}`, "بيانات الموقع", SITE_INFO_LABELS[field] ?? field, raw.siteInfo[field]);
   const walkCopy = (node: unknown, path: string) => {
     if (typeof node === "string") {
-      if (!/href$/i.test(path)) add(path, "نصوص الصفحات", path.replace(/^copy\./, ""), node);
+      if (!/href$/i.test(path)) {
+        const [, page, ...rest] = path.split(".");
+        add(path, "نصوص الصفحات", `${PAGE_LABELS[page] ?? page} · ${rest.join(" › ")}`, node);
+      }
     } else if (Array.isArray(node)) node.forEach((item, index) => walkCopy(item, `${path}.${index}`));
     else if (node && typeof node === "object") Object.entries(node).forEach(([key, child]) => walkCopy(child, `${path}.${key}`));
   };

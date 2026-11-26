@@ -2,6 +2,14 @@
   "buildCommand": "pnpm build",
   "outputDirectory": "dist/public",
   "rewrites": [
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
-  ]
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ],
+  "functions": {
+    "api/translate.ts": {
+      "maxDuration": 60
+    }
+  }
 }
