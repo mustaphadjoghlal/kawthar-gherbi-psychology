@@ -39,6 +39,7 @@ export const UI = {
   openMenu: { ar: "فتح قائمة التنقل", en: "Open the navigation menu", fr: "Ouvrir le menu de navigation" },
   mobileNav: { ar: "التنقل على الهاتف", en: "Mobile navigation", fr: "Navigation mobile" },
   logoAlt: { ar: "رمز {name}", en: "{name} logo", fr: "Logo {name}" },
+  heroServicesButton: { ar: "الخدمات", en: "Services", fr: "Services" },
   language: { ar: "اللغة", en: "Language", fr: "Langue" },
 } satisfies Record<string, Entry>;
 

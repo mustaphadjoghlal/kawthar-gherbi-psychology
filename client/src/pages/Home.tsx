@@ -1,11 +1,20 @@
 /**
  * Design system: «ملاذ هادئ» — بطلتان غير متماثلتين، أقواس احتواء ومسارات تنفّس ناعمة.
  */
-import { ArrowLeft, ArrowUpLeft, CalendarDays, Check, Quote } from "lucide-react";
+import { ArrowLeft, ArrowUpLeft, CalendarDays, Check, ChevronDown, Quote } from "lucide-react";
 import { Link } from "wouter";
 import { ServiceIcon } from "@/components/ServiceIcon";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePublicContent } from "@/hooks/usePublicContent";
+
+/** ينزل بسلاسة إلى قسم الخدمات في الصفحة نفسها، ويحترم من يفضّلون تقليل الحركة. */
+function scrollToServices(event: React.MouseEvent<HTMLAnchorElement>) {
+  const target = document.getElementById("services");
+  if (!target) return;
+  event.preventDefault();
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  target.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+}
 
 export default function Home() {
   const { articles, copy, services, siteInfo, testimonials } = usePublicContent();
@@ -22,6 +31,11 @@ export default function Home() {
             <div className="hero-actions">
               {home.heroPrimaryCta && (
                 <Link href={home.heroPrimaryHref} className="button-primary">{home.heroPrimaryCta} <CalendarDays size={17} /></Link>
+              )}
+              {services.length > 0 && (
+                home.services.visible
+                  ? <a href="#services" className="button-outline" onClick={scrollToServices}>{t("heroServicesButton")} <ChevronDown size={17} /></a>
+                  : <Link href="/services" className="button-outline">{t("heroServicesButton")} <ChevronDown size={17} /></Link>
               )}
               {home.heroSecondaryCta && (
                 <Link href={home.heroSecondaryHref} className="text-action">{home.heroSecondaryCta} <ArrowLeft size={17} /></Link>
@@ -66,7 +80,7 @@ export default function Home() {
       )}
 
       {home.services.visible && services.length > 0 && (
-        <section className="services-preview">
+        <section className="services-preview" id="services">
           <div className="container">
             <div className="section-heading split-heading">
               <div><p className="eyebrow"><span />{home.services.eyebrow}</p><h2>{home.services.title}</h2></div>
